@@ -63,7 +63,7 @@
                                 <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
                                             ResRating="@recipe.Rating.ToString("0.0")" ResCount="0"
                                             Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
-                                            OnClick="@(() => Nav.NavigateTo($"/Recipe/Content/{recipe.Id}"))"
+                                            OnClick="@(() => Nav.NavigateTo($"Recipe/Content/{recipe.Id}"))"
                                             Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
                             }
                         </div>
@@ -173,7 +173,7 @@
                                         <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
                                                     ResRating="@recipe.Rating.ToString("0.0")" ResCount="0"
                                                     Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
-                                                    OnClick="@(() => Nav.NavigateTo($"/Recipe/Content/{recipe.Id}"))"
+                                                    OnClick="@(() => Nav.NavigateTo($"Recipe/Content/{recipe.Id}"))"
                                                     Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
                                     }
                                 </div>
@@ -278,6 +278,6 @@
 
     private void GoToCategory(string category)
     {
-        Nav.NavigateTo($"/Recipe/Client?category={Uri.EscapeDataString(category)}");
+        Nav.NavigateTo($"Recipe/Client?category={Uri.EscapeDataString(category)}");
     }
 }
