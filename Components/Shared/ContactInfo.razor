@@ -1,0 +1,307 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IContactSettingsApiService ContactService
+
+<div class="flex mgb-10">
+    <h4 class="mg-0 pdt-1">Contact Information</h4>
+</div>
+
+<!-- Current Values -->
+<div class="flex">
+    <div class="mgb-10 mgr-20 flex flex-start flow">
+
+        <div class="mgr mgb bg-card pd shadow-border-5">
+            <div class="flex mgb-3">
+                <i class="mdi mdi-phone fsz-15 mgr-5"></i>
+                <h4 class="mg-0">Phone</h4>
+            </div>
+            <p>@originalSetting.PhoneNumber</p>
+        </div>
+
+        <div class="mgr mgb bg-card pd shadow-border-5">
+            <div class="flex mgb-3">
+                <i class="mdi mdi-email fsz-15 mgr-5"></i>
+                <h4 class="mg-0">Email</h4>
+            </div>
+            <p>@originalSetting.Email</p>
+        </div>
+
+        <div class="mgr mgb bg-card pd shadow-border-5">
+            <div class="flex mgb-3">
+                <i class="mdi mdi-map-marker fsz-15 mgr-5"></i>
+                <h4 class="mg-0">Address</h4>
+            </div>
+            <p>@originalSetting.Address</p>
+        </div>
+
+        <div class="mgr mgb bg-card pd shadow-border-5">
+            <div class="flex mgb-3">
+                <i class="mdi mdi-clock-outline fsz-15 mgr-5"></i>
+                <h4 class="mg-0">Business Hours</h4>
+            </div>
+
+            @if (originalSetting.BusinessHours == null || !originalSetting.BusinessHours.Any())
+            {
+                <p>No business hours set.</p>
+            }
+            else
+            {
+                @foreach (var hour in originalSetting.BusinessHours)
+                {
+                    <div class="flex flex-spacebetween mgb-2">
+                        <span class="mgr-5">@hour.Day</span>
+
+                        @if (hour.IsClosed)
+                        {
+                            <span class="cl-fatal">Closed</span>
+                        }
+                        else
+                        {
+                            <span class="cl-success">
+                                @FormatTime(hour.OpenTime)
+                                -
+                                @FormatTime(hour.CloseTime)
+                            </span>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="mgb-10">
+    <button disabled="@(isForm)" class="pd bd-none bg-primary corner-3 fsz-17" @onclick="IsForm">Edit Contact
+        Info</button>
+    </div>
+
+    <div style="display: @(isForm ? "block" : "none");">
+        <EditForm Model="setting" OnValidSubmit="HandleSaveChanges">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <!-- Contact -->
+            <div class="row responsive col-3">
+
+                <div class="stack mgb-10 mgr-5">
+                    <label>Phone Number</label>
+                    <InputText class="pd bd corner-2" @bind-Value="setting.PhoneNumber" />
+                    <ValidationMessage For="@(() => setting.PhoneNumber)" />
+                </div>
+
+                <div class="stack mgb-10 mgr-5">
+                    <label>Email</label>
+                    <InputText class="pd bd corner-2" @bind-Value="setting.Email" />
+                    <ValidationMessage For="@(() => setting.Email)" />
+                </div>
+
+                <div class="stack mgb-10 mgr-5">
+                    <label>Business Address</label>
+                    <InputText class="pd bd corner-2" @bind-Value="setting.Address" />
+                    <ValidationMessage For="@(() => setting.Address)" />
+                </div>
+
+            </div>
+            <hr class="mgt-10 mgb-10" />
+
+            <h4 class="mgb-5">Business Hours</h4>
+            @foreach (var hour in setting.BusinessHours)
+            {
+                <div class="flex flex-start mgb-5">
+                    <div class="flex flex-start flow mgb-5">
+                        <div class="mgb-3">
+                            <InputSelect class="pd bd mgr-5" @bind-Value="hour.Day">
+                                <option value="">Select Day</option>
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="flex mgb-3">
+                            <InputSelect class="pd bd mgr-5" @bind-Value="hour.OpenTime">
+                                @foreach (var time in TimeOptions)
+                                {
+                                    <option value="@time">@FormatTime(time)</option>
+                                }
+                            </InputSelect>
+
+                            <span class="mgr-5 flex flex-center">To</span>
+
+                            <InputSelect class="pd bd mgr-5" @bind-Value="hour.CloseTime">
+                                @foreach (var time in TimeOptions)
+                                {
+                                    <option value="@time">@FormatTime(time)</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        
+                    </div>
+
+                    
+
+                    <div class="stack wx-2">
+                        <button type="button" class="bg-warning bd-none pd mgb-3" @onclick="() => ConfirmRemoveHour(hour)">
+                            Remove
+                        </button>
+
+                        @if (!hour.IsClosed)
+                        {
+                            <div class="cl-secondary mgb-3">
+                                @{
+                                    string open =
+                                        TimeSpan.TryParse(hour.OpenTime, out var ot)
+                                            ? DateTime.Today.Add(ot).ToString("h:mm tt")
+                                            : "";
+
+                                    string close =
+                                        TimeSpan.TryParse(hour.CloseTime, out var ct)
+                                            ? DateTime.Today.Add(ct).ToString("h:mm tt")
+                                            : "";
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(open) &&
+                                     !string.IsNullOrWhiteSpace(close))
+                                {
+                                    <span>@open - @close</span>
+                                }
+                            </div>
+                        }
+
+                        <div class="flex flex-start">
+                            <label class="flex flex-center block">
+                                <InputCheckbox @bind-Value="hour.IsClosed" />
+                                <span class="mgl-2">Closed</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            }
+            <button type="button" class="bg-primary bd-none pd mgb-10" @onclick="AddHour">
+                Add Business Hour
+            </button>
+
+            <button type="submit" class="pd corner-2 bd-none bg-primary wf button fsz-16">
+                Save Changes
+            </button>
+        </EditForm>
+    </div>
+
+    @if (confirmHourDelete)
+    {
+        <ConfirmDialog Text="Are you sure you want to remove this business hour?" ConfirmBtn="Remove" CancelBtn="Cancel"
+                       Confirm="ConfirmHourRemoval" Cancel="CancelRemoveHour" />
+    }
+
+@code {
+    private bool confirmHourDelete = false;
+    private BusinessHour? hourToRemove;
+
+    [Parameter] public EventCallback SaveChanges { get; set; }
+
+    private ContactSetting setting = new();
+    private ContactSetting originalSetting = new();
+
+    private bool isForm = false;
+
+    private void IsForm()
+    {
+        isForm = !isForm;
+    }
+
+    private List<string> TimeOptions = Enumerable
+        .Range(0, 24)
+        .Select(h => $"{h:00}:00")
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        setting = await ContactService.GetAsync() ?? new ContactSetting();
+
+        originalSetting = Clone(setting);
+
+        setting.BusinessHours ??= new();
+    }
+
+    private ContactSetting Clone(ContactSetting source)
+    {
+        return new ContactSetting
+        {
+            Id = source.Id,
+            PhoneNumber = source.PhoneNumber,
+            Email = source.Email,
+            Address = source.Address,
+
+            BusinessHours = source.BusinessHours
+                .Select(x => new BusinessHour
+                {
+                    Id = x.Id,
+                    Day = x.Day,
+                    OpenTime = x.OpenTime,
+                    CloseTime = x.CloseTime,
+                    IsClosed = x.IsClosed
+                })
+                .ToList()
+        };
+    }
+
+    private string FormatTime(string time)
+    {
+        if (TimeOnly.TryParse(time, out var t))
+            return t.ToString("hh:mm tt");
+
+        return time;
+    }
+
+    private void AddHour()
+    {
+        setting.BusinessHours.Add(new BusinessHour());
+    }
+
+    private void ConfirmRemoveHour(BusinessHour hour)
+    {
+        hourToRemove = hour;
+        confirmHourDelete = true;
+    }
+
+    private void CancelRemoveHour()
+    {
+        hourToRemove = null;
+        confirmHourDelete = false;
+    }
+
+    private async Task ConfirmHourRemoval()
+    {
+        if (hourToRemove != null)
+        {
+            setting.BusinessHours.Remove(hourToRemove);
+        }
+
+        hourToRemove = null;
+        confirmHourDelete = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleSaveChanges()
+    {
+        isForm = !isForm;
+        await SaveChanges.InvokeAsync();
+    }
+
+    public async Task SaveSettings()
+    {
+        setting = await ContactService.UpdateAsync(setting) ?? setting;
+
+        originalSetting = Clone(setting);
+
+        StateHasChanged();
+    }
+}

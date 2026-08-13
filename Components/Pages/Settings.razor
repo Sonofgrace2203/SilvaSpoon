@@ -1,0 +1,245 @@
+@page "/Settings"
+@attribute [Authorize(Roles = "Admin")]
+@using silvaspoon.Components.Shared
+@inject NavigationManager Nav
+@layout AdminLayout
+
+<div>
+    <div class="flex mgb-10">
+        <h3 class="mg-0 pdt-1">Settings</h3>
+    </div>
+
+    <div class="flex flex-start flow mgb-10">
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="BusinessSetting">Business Info</button>
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="ContactSetting">Contact Info</button>
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="DeliverySetting">Delivery Info</button>
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="MealSetting">Meal Info</button>
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="WhatsAppSetting">WhatsApp Info</button>
+        <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="SocialMedia">Social links</button>
+        @* <button class="pd bd bg-primary-01 mgr-2 mgb-2 setting-btn" @onclick="Appearance">Appearance</button> *@
+    </div>
+
+    @if (contactInfo)
+    {
+        <ContactInfo @ref="contactRef" SaveChanges="ConfirmContactDialog" />
+    }
+    else if (deliverySettings)
+    {
+        <DeliverySettingInfo @ref="deliveryRef" SaveChanges="ConfirmDeliveryDialog" />
+    }
+    else if (mealInfo)
+    {
+        <MealSetting @ref="mealRef" SaveChanges="ConfirmMealDialog" />
+    }
+    else if (whatsappSettings)
+    {
+        <WhatsAppSettingInfo @ref="whatsappRef" SaveChanges="ConfirmWhatsAppDialog" />
+    }
+    else if (socialMedia)
+    {
+        <SocialMediaLinks @ref="socialRef" SaveChanges="ConfirmSocialDialog" />
+    }
+    else if (appearanceSetting)
+    {
+
+    }
+    else
+    {
+        <BusinessInfo @ref="businessRef" SaveChanges="ConfirmBusinessDialog" />
+    }
+</div>
+
+@if (showConfirmDialog)
+{
+    <ConfirmDialog Text="@confirmText" ConfirmBtn="Save" CancelBtn="Cancel" Confirm="ConfirmSave" Cancel="CancelSave" />
+}
+
+@code {
+    private BusinessInfo? businessRef;
+    private ContactInfo? contactRef;
+    private DeliverySettingInfo? deliveryRef;
+    private MealSetting? mealRef;
+    private WhatsAppSettingInfo? whatsappRef;
+    private SocialMediaLinks? socialRef;
+
+    private bool showConfirmDialog;
+    private Func<Task>? pendingSave;
+    private string confirmText = "";
+    private bool businessInfo = false;
+    private bool contactInfo = false;
+    private bool mealInfo = false;
+    private bool deliverySettings = false;
+    private bool whatsappSettings = false;
+    private bool socialMedia = false;
+    private bool appearanceSetting = false;
+
+
+    private void ConfirmBusinessDialog()
+    {
+        confirmText = "Save Business Information?";
+
+        pendingSave = async () =>
+        {
+            if (businessRef != null)
+                await businessRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private void ConfirmContactDialog()
+    {
+        confirmText = "Save Contact Information?";
+
+        pendingSave = async () =>
+        {
+            if (contactRef != null)
+                await contactRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private void ConfirmDeliveryDialog()
+    {
+        confirmText = "Save Delivery Information?";
+
+        pendingSave = async () =>
+        {
+            if (deliveryRef != null)
+                await deliveryRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private void ConfirmMealDialog()
+    {
+        confirmText = "Save Meal Information?";
+
+        pendingSave = async () =>
+        {
+            if (mealRef != null)
+                await mealRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private void ConfirmWhatsAppDialog()
+    {
+        confirmText = "Save WhatsApp Information?";
+
+        pendingSave = async () =>
+        {
+            if (whatsappRef != null)
+                await whatsappRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private void ConfirmSocialDialog()
+    {
+        confirmText = "Save Social Information?";
+
+        pendingSave = async () =>
+        {
+            if (socialRef != null)
+                await socialRef.SaveSettings();
+        };
+
+        showConfirmDialog = true;
+    }
+
+    private async Task ConfirmSave()
+    {
+        showConfirmDialog = false;
+
+        if (pendingSave != null)
+            await pendingSave();
+    }
+
+    private Task CancelSave()
+    {
+        showConfirmDialog = false;
+
+        return Task.CompletedTask;
+    }
+    private void BusinessSetting()
+    {
+        businessInfo = true;
+        contactInfo = false;
+        deliverySettings = false;
+        mealInfo = false;
+        whatsappSettings = false;
+        socialMedia = false;
+        appearanceSetting = false;
+    }
+
+    private void ContactSetting()
+    {
+        businessInfo = false;
+        contactInfo = true;
+        deliverySettings = false;
+        mealInfo = false;
+        whatsappSettings = false;
+        socialMedia = false;
+        appearanceSetting = false;
+    }
+
+    private void DeliverySetting()
+    {
+        businessInfo = false;
+        contactInfo = false;
+        deliverySettings = true;
+        mealInfo = false;
+        whatsappSettings = false;
+        socialMedia = false;
+        appearanceSetting = false;
+    }
+
+    private void MealSetting()
+    {
+        businessInfo = false;
+        contactInfo = false;
+        deliverySettings = false;
+        mealInfo = true;
+        whatsappSettings = false;
+        socialMedia = false;
+        appearanceSetting = false;
+    }
+
+    private void WhatsAppSetting()
+    {
+        businessInfo = false;
+        contactInfo = false;
+        deliverySettings = false;
+        mealInfo = false;
+        whatsappSettings = true;
+        socialMedia = false;
+        appearanceSetting = false;
+    }
+
+    private void SocialMedia()
+    {
+        businessInfo = false;
+        contactInfo = false;
+        deliverySettings = false;
+        mealInfo = false;
+        whatsappSettings = false;
+        socialMedia = true;
+        appearanceSetting = false;
+    }
+
+    private void Appearance()
+    {
+        businessInfo = false;
+        contactInfo = false;
+        deliverySettings = false;
+        mealInfo = false;
+        whatsappSettings = false;
+        socialMedia = false;
+        appearanceSetting = true;
+    }
+}

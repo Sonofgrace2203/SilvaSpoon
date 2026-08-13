@@ -1,0 +1,198 @@
+@page "/Recipe/Client"
+@using Microsoft.AspNetCore.Components
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Services.Settings
+@using silvaspoon.Models.Settings
+@inject IRecipeApiService RecipeApiService
+@inject IMealSettingsApiService MealCategoryService
+@inject IImageUrlService ImageUrlService
+
+
+<div class="wvl-5">
+    <NavBar />
+</div>
+
+<div class="pd-20 wvg-5">
+    <div class="mgt-10 mgb-10">
+        <div class="flex flex-center stack">
+            <div class="flex">
+                <h3 class="mgr-3 mgt-0 mgb-0 fw-bold fsz-30">Our</h3>
+                <h3 class="cl-secondary mg-0 fw-bold fsz-30">Recipe</h3>
+            </div>
+            <p>Explore our delicious Meals Recipe</p>
+        </div>
+    </div>
+
+    <div class="flex flex-spacebetween flow">
+        <div class="flex flex-center flow mgb-5">
+            <button class="pd bg-primary-01 bd setting-btn mgr-1 mgb-1" @onclick="AllRecipes">
+                All
+            </button>
+
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgr-1 mgb-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="flex flex-center">
+            <input placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
+                   @bind="searchedRecipe" @onkeydown="HandleSearchKey" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchRecipes">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="pd-5 wvl-5">
+    <div class="pdt-15 mgt-5">
+        <div class="flex flex-center stack">
+            <div class="flex">
+                <h3 class="mgr-3 mgt-0 mgb-0 fw-bold fsz-30">Our</h3>
+                <h3 class="cl-secondary mg-0 fw-bold fsz-30">Recipe</h3>
+            </div>
+            <p>Explore our delicious meals</p>
+        </div>
+    </div>
+
+    <div class="flex flex-spacebetween flow mgb-5">
+        <div class="grid col-3 flow mgb-5">
+            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1" @onclick="AllRecipes">
+                All
+            </button>
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="mgt-1">
+            <input type="text" placeholder="search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
+                   @bind="searchedRecipe" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchRecipes">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-center mgt--15 wvg-5">
+    <div class="flex flex-center flow pd mahx-10 scroll-y">
+        @foreach (var recipe in filteredRecipes)
+        {
+            <NavLink href="@($"/Recipe/Content/{recipe.Id}")" style="text-decoration: none;" class="cl-black">
+
+                <RecipeMenuCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
+            </NavLink>
+        }
+    </div>
+</div>
+
+<div class="mgt--10 wvl-5">
+    <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
+        @foreach (var recipe in filteredRecipes)
+        {
+            <NavLink href="@($"/Recipe/Content/{recipe.Id}")" style="text-decoration: none;" class="cl-black">
+
+                <RecipeMenuCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
+            </NavLink>
+        }
+    </div>
+</div>
+
+<Footer />
+
+@code {
+    private string searchedRecipe = "";
+    private string currentFilter = "All";
+
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? Category { get; set; }
+
+    private List<Recipe> recipes = new();
+    private List<MealCategory> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipes = await RecipeApiService.GetRecipesAsync();
+
+        categories = await MealCategoryService.GetAsync()
+                     ?? new List<MealCategory>();
+
+        if (!string.IsNullOrWhiteSpace(Category))
+        {
+            currentFilter = Category;
+        }
+    }
+
+    private IEnumerable<Recipe> filteredRecipes
+    {
+        get
+        {
+            IEnumerable<Recipe> result = recipes
+                .Where(r => r.IsPublished);
+
+            if (!string.Equals(currentFilter, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                result = result.Where(r =>
+                    string.Equals(
+                        r.Category,
+                        currentFilter,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchedRecipe))
+            {
+                result = result.Where(r =>
+                    r.Title != null &&
+                    r.Title.Contains(
+                        searchedRecipe,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            return result;
+        }
+    }
+
+    private async Task HandleSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            recipes = await RecipeApiService.GetRecipesAsync();
+        }
+    }
+
+    private void AllRecipes()
+    {
+        currentFilter = "All";
+    }
+
+    private void FilterByCategory(string category)
+    {
+        currentFilter = category;
+    }
+
+    private async Task SearchRecipes()
+    {
+        recipes = await RecipeApiService.GetRecipesAsync(); ;
+    }
+}

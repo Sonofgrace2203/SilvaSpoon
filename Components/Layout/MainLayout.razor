@@ -1,0 +1,20 @@
+﻿@using silvaspoon.Components.Shared
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="wvg-5 z-5">
+        <NavBar />
+    </div>
+
+    <main class="wf">
+        <div class="wf">
+            @Body
+        </div>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

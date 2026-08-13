@@ -1,0 +1,80 @@
+@using silvaspoon.Models
+@using silvaspoon.Services
+@inject IRecipeApiService RecipeApiService
+@inject NavigationManager Nav
+@inject IImageUrlService ImageUrlService
+
+<div class="wvg-5">
+    <div class="flex flex-center stack">
+        <div class="flex">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-30">Featured</h3>
+            <h3 class="cl-secondary mg-0 fsz-30">Recipes</h3>
+        </div>
+        <p class="fsz-15 op-6 mgt-1">A taste of what we can prepare</p>
+    </div>
+    <div class="flex flex-start">
+        <div class="pd-5 flex scroll flex-start">
+            <div class="flex">
+                @foreach (var recipe in filteredRecipes)
+                {
+                    <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                }
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-center">
+        <button class="text-center corner-6 bg-primary pdl-20 pdr-20 pdt-3 pdb-3 bd-none button"
+                @onclick="GoToRecipe">View Full Recipe</button>
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="flex flex-center stack">
+        <div class="flex">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-25">Featured</h3>
+            <h3 class="cl-secondary mg-0 fsz-25">Recipes</h3>
+        </div>
+        <p class="fsz-15 op-6 mgt-1">A taste of what we offer</p>
+    </div>
+    <div class="flex scroll">
+        <div class="flex">
+            <div class="flex flex-start scroll">
+                @foreach (var recipe in filteredRecipes)
+                {
+                    <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
+                }
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-center">
+        <button class="text-center corner-6 bg-primary pdl-20 pdr-20 pdt-3 pdb-3 bd-none button"
+                @onclick="GoToRecipe">View Full Recipe</button>
+    </div>
+</div>
+
+@code {
+    private List<Recipe> recipes = new();
+
+    private IEnumerable<Recipe> filteredRecipes =>
+    recipes
+        .Where(x => x.IsPublished)
+        .OrderBy(x => Guid.NewGuid())
+        .Take(6);
+
+    private void GoToRecipe()
+    {
+        Nav.NavigateTo("/Recipe/Client");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipes = await RecipeApiService.GetRecipesAsync();
+    }
+}

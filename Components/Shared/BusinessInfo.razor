@@ -1,0 +1,351 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using silvaspoon.Services.Upload
+
+@inject IBusinessSettingsApiService BusinessSettingsApiService
+@inject IImageUrlService ImageUrlService
+@inject IUploadApiService UploadService
+@inject BusinessSettingsState BusinessSettingsState
+
+<div>
+    <div class="flex mgb-10">
+        <h4 class="mg-0 pdt-1">Business Information</h4>
+    </div>
+
+    <div class="flex">
+        <div class="flex flex-start flow mgb-10 mgr-20">
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Business Name:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>@originalSetting.BusinessName</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">TagName:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>@originalSetting.Tagline</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">About Us:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>@originalSetting.AboutUs</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Business Features:</h4>
+                </div>
+                <div>
+                    <div class="flex flex-start flow mgt">
+                        @foreach (var feature in originalSetting.Features)
+                        {
+                            <div class="flex">
+                                <div class="flex">
+                                    <p class="bg-primary-02 cl-primary pd mgr">@feature.Title</p>
+                                    <button type="button" class="bd-none bg-transparent mgl--3"
+                                            @onclick="() => ConfirmDeleteFeature(feature)">
+                                        <i class="mdi mdi-delete cl-warning"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Business Logo:</h4>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(originalSetting.ImageUrl))
+                {
+                    <img src="@ImageUrlService.GetImageUrl(originalSetting.ImageUrl)" class="wx-2 hx-2 corner-3"
+                         alt="Business Logo">
+                }
+                else
+                {
+                    <p>No logo uploaded.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-10">
+        <button disabled="@(isForm)" class="pd bd-none bg-primary corner-3 fsz-17" @onclick="IsForm">Edit Business
+            Info</button>
+        </div>
+
+        <div style="display: @(isForm ? "block" : "none");">
+            <EditForm Model="setting" OnValidSubmit="HandleSaveChanges">
+                <DataAnnotationsValidator />
+
+                <div class="row responsive col-3">
+                    <div class="stack mgb-10 mgr-5 miwx-25">
+                        <label class="mgb-1 fsz-15">Business Name</label>
+                        <InputText class="pd bd corner-2" @bind-Value="setting.BusinessName" />
+                        <ValidationMessage For="@(() => setting.BusinessName)" />
+                    </div>
+                    <div class="stack mgb-10 mgr-5 miwx-25">
+                        <label class="mgb-1 fsz-15">Tagline</label>
+                        <InputText class="pd bd corner-2" @bind-Value="setting.Tagline" />
+                        <ValidationMessage For="@(() => setting.Tagline)" />
+                    </div>
+                </div>
+                <div class="stack mgb-10 mgr-5">
+                    <label class="mgb-1 fsz-15">About Us</label>
+                    <InputTextArea class="corner-2 hx-1 bd pd" @bind-Value="setting.AboutUs" />
+                    <ValidationMessage For="@(() => setting.AboutUs)" />
+                </div>
+
+                <h4 class="mgb-5">Business Features</h4>
+
+                <div class="stack mgb-10">
+
+                    <div class="flex">
+                        <InputText class="pd bd corner-2 mgr-5" @bind-Value="newFeature" placeholder="Enter feature..." />
+
+                        <button type="button" class="bg-primary bd-none pd" @onclick="AddFeature">
+                            Add
+                        </button>
+                    </div>
+
+                    <div class="flex flex-start flow mgt">
+                        @foreach (var feature in setting.Features)
+                        {
+                            <div class="flex">
+                                <div class="flex mgr mgb">
+                                    <p class="bg-primary-02 cl-primary pd mgr">@feature.Title</p>
+                                    <button type="button" class="bd-none bg-transparent mgl--5"
+                                            @onclick="() => RemoveFeature(feature)">
+                                        <i class="cl-warning">&times</i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="mgb-10 mgr-5 flex flow">
+                    <div class="stack">
+                        <label class="mgb-1 fsz-15">
+                            Business Image
+                        </label>
+                        <InputFile OnChange="UploadImage" />
+                        <ValidationMessage For="@(() => setting.ImageUrl)" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(setting.ImageUrl))
+                    {
+                        <img src="@ImageUrlService.GetImageUrl(setting.ImageUrl)" class="wx-25 hx-05">
+                    }
+                </div>
+                <button type="submit" class="pd corner-2 bd-none bg-primary wf button fsz-16">
+                    Save Changes
+                </button>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (confirmFeatureDelete)
+    {
+        <ConfirmDialog Text="Are you sure you want to delete this business feature?" ConfirmBtn="Delete" CancelBtn="Cancel"
+                       Confirm="DeleteSavedFeature" Cancel="CancelDeleteFeature" />
+    }
+
+@code {
+    [Parameter] public EventCallback SaveChanges { get; set; }
+    private BusinessSetting setting = new();
+    private BusinessSetting originalSetting = new();
+
+    private string newFeature = "";
+
+    private bool confirmFeatureDelete = false;
+    private BusinessFeature? featureToDelete;
+
+    private bool isForm = false;
+
+    private void IsForm()
+    {
+        isForm = !isForm;
+    }
+
+    private async Task HandleSaveChanges()
+    {
+        isForm = !isForm;
+        await SaveChanges.InvokeAsync();
+    }
+
+    public async Task SaveSettings()
+    {
+        // Load the current saved settings
+        var savedSetting = await BusinessSettingsApiService.GetAsync()
+                           ?? new BusinessSetting();
+
+        savedSetting.Features ??= new();
+
+        // Update normal business information
+        savedSetting.BusinessName = setting.BusinessName;
+        savedSetting.Tagline = setting.Tagline;
+        savedSetting.AboutUs = setting.AboutUs;
+        savedSetting.ImageUrl = setting.ImageUrl;
+
+        // Add only newly entered features
+        foreach (var feature in setting.Features)
+        {
+            if (!savedSetting.Features.Any(f =>
+                f.Title.Equals(feature.Title, StringComparison.OrdinalIgnoreCase)))
+            {
+                savedSetting.Features.Add(new BusinessFeature
+                {
+                    Title = feature.Title
+                });
+            }
+        }
+
+        // Save everything
+        var result = await BusinessSettingsApiService.UpdateAsync(savedSetting);
+
+        originalSetting = Clone(result ?? savedSetting);
+
+        BusinessSettingsState.Set(originalSetting);
+
+        // Keep the normal fields in the form
+        setting.BusinessName = originalSetting.BusinessName;
+        setting.Tagline = originalSetting.Tagline;
+        setting.AboutUs = originalSetting.AboutUs;
+        setting.ImageUrl = originalSetting.ImageUrl;
+
+        // Clear ONLY the temporary feature list
+        setting.Features.Clear();
+
+        newFeature = "";
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        setting = await BusinessSettingsApiService.GetAsync()
+                  ?? new BusinessSetting();
+
+        setting.Features ??= new();
+
+        originalSetting = Clone(setting);
+
+        // Form should only contain newly added features
+        setting.Features.Clear();
+    }
+
+    private BusinessSetting Clone(BusinessSetting source)
+    {
+        return new BusinessSetting
+        {
+            Id = source.Id,
+            BusinessName = source.BusinessName,
+            Tagline = source.Tagline,
+            AboutUs = source.AboutUs,
+            ImageUrl = source.ImageUrl,
+
+            Features = source.Features
+                .Select(x => new BusinessFeature
+                {
+                    Id = x.Id,
+                    Title = x.Title
+                })
+                .ToList()
+        };
+    }
+
+    private void AddFeature()
+    {
+        if (string.IsNullOrWhiteSpace(newFeature))
+            return;
+
+        setting.Features.Add(new BusinessFeature
+        {
+            Title = newFeature.Trim()
+        });
+
+        newFeature = "";
+    }
+
+    private void RemoveFeature(BusinessFeature feature)
+    {
+        setting.Features.Remove(feature);
+    }
+
+    private void ConfirmDeleteFeature(BusinessFeature feature)
+    {
+        featureToDelete = feature;
+        confirmFeatureDelete = true;
+    }
+
+    private void CancelDeleteFeature()
+    {
+        featureToDelete = null;
+        confirmFeatureDelete = false;
+    }
+
+    private async Task DeleteSavedFeature()
+    {
+        if (featureToDelete == null)
+            return;
+
+        var savedSetting = await BusinessSettingsApiService.GetAsync()
+                           ?? new BusinessSetting();
+
+        savedSetting.Features ??= new();
+
+        var feature = savedSetting.Features
+            .FirstOrDefault(f => f.Id == featureToDelete.Id);
+
+        if (feature != null)
+        {
+            savedSetting.Features.Remove(feature);
+        }
+
+        var result = await BusinessSettingsApiService.UpdateAsync(savedSetting);
+
+        originalSetting = Clone(result ?? savedSetting);
+
+        BusinessSettingsState.Set(originalSetting);
+
+        featureToDelete = null;
+        confirmFeatureDelete = false;
+
+        StateHasChanged();
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var imageUrl = await UploadService.UploadImageAsync(file, "business");
+
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            setting.ImageUrl = imageUrl;
+            Console.WriteLine($"Uploaded image: {setting.ImageUrl}");
+            StateHasChanged();
+        }
+    }
+}
+

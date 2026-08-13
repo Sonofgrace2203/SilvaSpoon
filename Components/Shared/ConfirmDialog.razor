@@ -1,0 +1,35 @@
+@* <div class="bg-black-04" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0;"> *@
+<div class="bg-black-04" style="position: fixed; inset: 0; z-index: 99999;">
+    @* <div class=" hf wf" style="display: flex; justify-content: center; align-items: center;"> *@
+    <div class="hf wf" style="display: flex; justify-content: center; align-items: center; position: fixed; inset: 0;">
+        <div class="pd-10 bg-card corner-5 shadow-border-5">
+            <p class="fsz-15 text-center wx-2">@Text</p>
+
+            <div class="flex flex-center">
+                <div class="mgt-10">
+                    <button class="bg-primary-08 bg-transparent bd-none pd cl-white mgr-10"
+                            @onclick="HandleConfirm">@ConfirmBtn</button>
+                    <button class="bg-black-01 bg-transparent bd-none pd" @onclick="HandleCancel">@CancelBtn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string ConfirmBtn { get; set; } = "";
+    [Parameter] public string CancelBtn { get; set; } = "";
+    [Parameter] public EventCallback Confirm { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+
+    private async Task HandleConfirm()
+    {
+        await Confirm.InvokeAsync();
+    }
+
+    private async Task HandleCancel()
+    {
+        await Cancel.InvokeAsync();
+    }
+}

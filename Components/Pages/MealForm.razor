@@ -1,0 +1,120 @@
+@page "/Admin/Meals/NewMeal"
+@using Microsoft.AspNetCore.Components.Forms;
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject IMealApiService MealApiService
+@inject IUploadApiService UploadService
+@inject IImageUrlService ImageUrlService
+@inject IMealSettingsApiService MealCategoryService
+@inject NavigationManager Nav
+@layout AdminLayout
+
+
+<div class="">
+    <div class="flex mgb-10">
+        <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd"
+           @onclick='() => Nav.NavigateTo("/Admin/Meals")'></i>
+        <div class="mgt-3">
+            <h3 class="mg-0">Add New Meal</h3>
+        </div>
+    </div>
+
+    <EditForm Model="@meal" OnValidSubmit="SaveMeal">
+        <DataAnnotationsValidator />
+        <div class="row responsive col-3">
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label for="name" class="mgb-1 fsz-15">Meal Name</label>
+                <InputText class="pd bd corner-2 mgb-3" @bind-Value="meal.Name" />
+                <ValidationMessage For="@(() => meal.Name)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label for="name" class="mgb-1 fsz-15">Meal Category</label>
+                <InputSelect @bind-Value="meal.Category" class="pd bd corner-2 mgb-3">
+                    <option value="">Select Category</option>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.Name">@category.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => meal.Category)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label for="price" class="mgb-1 fsz-15">Price (NG)</label>
+                <InputNumber class="pd bd corner-2 mgb-3" @bind-Value="meal.Price" />
+                <ValidationMessage For="@(() => meal.Price)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label for="name" class="mgb-1 fsz-15">Availability</label>
+                <InputSelect class="pd bd corner-2" @bind-Value="meal.IsAvailable">
+                    <option value="">Select Availability</option>
+                    <option value="true">Available</option>
+                    <option value="false">Not Available</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => meal.IsAvailable)" />
+            </div>
+        </div>
+
+        <div class="stack mgb-10 mgr-5">
+            <label for="description" class="mgb-1 fsz-15">Description</label>
+            <InputTextArea class="corner-2 hx-1 bd pd mgb-3" @bind-Value="meal.Description" />
+            <ValidationMessage For="@(() => meal.Description)" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5">
+            <label for="description" class="mgb-1 fsz-15">Image</label>
+            <InputFile OnChange="UploadImage" class="pd corner-2" />
+            @if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+            {
+                <img src="@ImageUrlService.GetImageUrl(meal.ImageUrl)" class="wx-25 hx-05 corner-3" />
+            }
+            <ValidationMessage For="@(() => meal.ImageUrl)" />
+        </div>
+
+        <div class="pd flex flex-end">
+            <button class="pd corner-2 bd-none mgr-5 button shadow-border-3 bd"
+                    @onclick='() => Nav.NavigateTo("/Admin/Meals")'>Cancel</button>
+            <button type="submit" disabled="@isSaving"
+                    class="pd corner-2 bd-none bg-primary mgr-5 button shadow-border-3 bd">
+                @(isSaving ? "Saving..." : "Add Meal")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private Meal meal = new();
+    private bool isSaving;
+    private List<MealCategory> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await MealCategoryService.GetAsync()
+                     ?? new List<MealCategory>();
+    }
+
+    private async Task SaveMeal()
+    {
+        isSaving = true;
+
+        await MealApiService.CreateMealAsync(meal);
+
+        Nav.NavigateTo("/Admin/Meals");
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var imageUrl = await UploadService.UploadImageAsync(file, "meals");
+
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            meal.ImageUrl = imageUrl;
+        }
+    }
+}

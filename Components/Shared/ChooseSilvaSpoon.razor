@@ -1,0 +1,47 @@
+@using silvaspoon.Components.Pages
+@using silvaspoon.Services.Settings
+
+@inject IBusinessSettingsApiService BusinessSetting
+
+<div class="wvg-5">
+    <div class="flex flex-center stack">
+        <div class="flex mgb-5">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-30">Why Choose</h3>
+            <h3 class="cl-secondary mgb-0 mgt-0 fsz-30">@businessInfoSetting.BusinessName?</h3>
+        </div>
+    </div>
+    <div class="flex flex-center flow">
+        <ChooseCard Img="icons/ingre.svg" MealTitle="Fresh Ingredients" MealDesc="We use the freshost ingredients for every meal." />
+        <ChooseCard Img="icons/hyg.svg" MealTitle="Hygienic Preparation" MealDesc="Prepared with utmost hygiene and care." />
+        <ChooseCard Img="icons/tasty.svg" MealTitle="Tasty & Quality" MealDesc="Great taste and quality you can always count on." />
+        <ChooseCard Img="icons/del.svg" MealTitle="On-time Delivery" MealDesc="Timely delivery right to your doorstep." />
+    </div>
+</div>
+
+
+
+
+<div class="wvl-5">
+    <div class="flex flex-center stack">
+        <div class="flex mgb-5">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-25">Why Choose</h3>
+            <h3 class="cl-secondary mgb-0 mgt-0 fsz-25">@businessInfoSetting.BusinessName?</h3>
+        </div>
+    </div>
+
+    <div class="pd-5 grid col-2">
+        <ChooseCard Img="icons/ingre.svg" MealTitle="Fresh Ingredients" MealDesc="We use the freshost ingredients for every meal." />
+        <ChooseCard Img="icons/hyg.svg" MealTitle="Hygienic Preparation" MealDesc="Prepared with utmost hygiene and care." />
+        <ChooseCard Img="icons/tasty.svg" MealTitle="Tasty & Quality" MealDesc="Great taste and quality you can always count on." />
+        <ChooseCard Img="icons/del.svg" MealTitle="On-time Delivery" MealDesc="Timely delivery right to your doorstep." />
+    </div>
+</div>
+
+@code {
+    private BusinessSetting businessInfoSetting = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+    }
+}

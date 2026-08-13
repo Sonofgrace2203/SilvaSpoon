@@ -1,0 +1,30 @@
+@inject IImageUrlService ImageUrlService
+
+<div class="bd pd corner-3 wx-3 mgb-10 mgr-10 wvg-5 shadow-border-3">
+    <img src="@Img" alt="@AltTitle" class="wf hx-25 corner-3">
+    <div class="pd">
+        <h5 class="mg-0 pdb-2 fsz-17">@MealTitle</h5>
+        <h3 class="mg-0 pdb-2 cl-secondary">@MealPrice</h3>
+        <p class="mg-0 op-7">@MealDesc</p>
+    </div>
+</div>
+
+
+
+<div class="bd pd corner-3 wx-2 mgb-10 mgr-5 wvl-5 shadow-border-3">
+    <img src="@Img" alt="" class="wf hx-15 corner-3">
+    <div class="pd">
+        <h5 class="mg-0 pdb-2 fsz-17">@MealTitle</h5>
+        <h3 class="mg-0 pdb-2 cl-secondary">@MealPrice</h3>
+        <p class="mg-0 op-7">@MealDesc</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string AltTitle { get; set; } = "";
+    [Parameter] public string MealPrice { get; set; } = "";
+    [Parameter] public string MealDesc { get; set; } = "";
+}
+

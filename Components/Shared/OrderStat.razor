@@ -1,0 +1,27 @@
+<div class="wvg-5">
+    <div class="bd corner-3 wx-2 pd mgr-2 shadow-border-5 bg-card cardani">
+        <div class="flex mgb-5">
+            <i class="mdi mdi-package fsz-20 cl-secondary mgr-5"></i>
+            <p class="mg-0 pdt-1">@Title</p>
+        </div>
+        <h1 class="mg-0 text-center fsz-25">@Num</h1>
+        <p class="text-center mgb-0">@Tag</p>
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="bd corner-3 wx-13 pd mgr-2 shadow-border-5 bg-card cardani">
+        <div class="flex mgb-5">
+            <i class="mdi mdi-package fsz-20 cl-secondary mgr-5"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Title</p>
+        </div>
+        <h1 class="mg-0 text-center fsz-20">@Num</h1>
+        <p class="text-center mgb-0 fsz-12">@Tag</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Num { get; set; } = "";
+    [Parameter] public string Tag { get; set; } = "";
+}

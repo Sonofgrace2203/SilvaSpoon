@@ -1,0 +1,250 @@
+@page "/Menu"
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject IMealSettingsApiService MealCategoryService
+@inject CartService Cart
+@inject IMealApiService MealApiService
+@inject IImageUrlService ImageUrlService
+
+
+<div class="wvl-5">
+    <NavBar />
+</div>
+
+<div class="pd-20 wvg-5">
+    <div class="mgt-10 mgb-10">
+        <div class="flex flex-center stack">
+            <div class="flex">
+                <h3 class="mgr-3 mgt-0 mgb-0 fw-bold fsz-30">Our</h3>
+                <h3 class="cl-secondary mg-0 fw-bold fsz-30">Menu</h3>
+            </div>
+            <p>Explore our delicious meals</p>
+        </div>
+    </div>
+
+    <div class="flex flex-spacebetween flow">
+        <div class="flex flex-center flow mgb-5">
+            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1" @onclick="AllMeals">
+                All
+            </button>
+
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgr-1 mgb-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="flex flex-center">
+            <input placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none" @bind="searchedMeal"
+                   @onkeydown="HandleSearchKey" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchMeals">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="pd-5 wvl-5">
+    <div class="pdt-15 mgt-5">
+        <div class="flex flex-center stack">
+            <div class="flex">
+                <h3 class="mgr-3 mgt-0 mgb-0 fw-bold fsz-30">Our</h3>
+                <h3 class="cl-secondary mg-0 fw-bold fsz-30">Menu</h3>
+            </div>
+            <p>Explore our delicious meals</p>
+        </div>
+    </div>
+
+    <div class="flex flex-spacebetween flow mgb-5">
+        <div class="grid col-3 flow mgb-5">
+            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1" @onclick="AllMeals">
+                All
+            </button>
+
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="flex flex-center">
+            <input placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none" @bind="searchedMeal"
+                   @onkeydown="HandleSearchKey" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchMeals">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-center mgt--15 wvg-5">
+    <div class="flex flex-center flow pd mahx-10 scroll-y">
+        @foreach (var meal in filteredMeals)
+        {
+            @if (meal.IsAvailable)
+            {
+                @* <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                          AltTitle="@meal.Name" MealDesc="@meal.Description"
+                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                          IsAvailable="@meal.IsAvailable" /> *@
+
+                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                          AltTitle="@meal.Name" MealDesc="@meal.Description"
+                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+            }
+            else
+            {
+                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                          AltTitle="@meal.Name" MealDesc="@meal.Description"
+                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+            }
+        }
+
+    </div>
+</div>
+
+<div class="mgt--10 wvl-5">
+    <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
+        @foreach (var meal in filteredMeals)
+        {
+            @if (meal.IsAvailable)
+            {
+                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                          AltTitle="@meal.Name" MealDesc="@meal.Description"
+                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+            }
+            else
+            {
+                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                          AltTitle="@meal.Name" MealDesc="@meal.Description"
+                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+            }
+        }
+    </div>
+</div>
+
+<Footer />
+
+@code {
+    private string searchedMeal = "";
+    private string currentFilter = "All";
+
+    private int? addedMealId;
+    private CancellationTokenSource? addToCartCts;
+
+    private List<Meal> meals = new();
+    private List<MealCategory> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        meals = await MealApiService.GetMealsAsync();
+
+        categories = await MealCategoryService.GetAsync()
+                     ?? new List<MealCategory>();
+    }
+
+    private IEnumerable<Meal> filteredMeals
+    {
+        get
+        {
+            IEnumerable<Meal> result = meals;
+
+            if (!string.Equals(currentFilter, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                result = result.Where(m =>
+                    string.Equals(
+                        m.Category,
+                        currentFilter,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchedMeal))
+            {
+                result = result.Where(m =>
+                    m.Name != null &&
+                    m.Name.Contains(
+                        searchedMeal,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            return result;
+        }
+    }
+
+    private void AllMeals() => currentFilter = "All";
+
+    private void FilterByCategory(string category)
+    {
+        currentFilter = category;
+    }
+
+    @* private void AddToCart(Meal meal)
+    {
+        Cart.AddMeal(meal);
+
+        StateHasChanged();
+    } *@
+
+    private async Task AddToCart(Meal meal)
+    {
+        Cart.AddMeal(meal);
+
+        addedMealId = meal.Id;
+
+        addToCartCts?.Cancel();
+        addToCartCts?.Dispose();
+
+        addToCartCts = new CancellationTokenSource();
+        var token = addToCartCts.Token;
+
+        try
+        {
+            await Task.Delay(3000, token);
+
+            if (!token.IsCancellationRequested)
+            {
+                addedMealId = null;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignore because another meal may have just been added.
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SearchMeals()
+    {
+        meals = await MealApiService.GetMealsAsync(); ;
+    }
+
+    private async Task HandleSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            meals = await MealApiService.GetMealsAsync(); ;
+        }
+    }
+}

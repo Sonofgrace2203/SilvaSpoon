@@ -1,0 +1,100 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using silvaspoon.Models
+@using silvaspoon.Services
+
+@inject IReviewApiService ReviewApiService
+@inject IImageUrlService ImageUrlService
+@inject IUploadApiService UploadService
+@inject IMealApiService MealApiService
+
+<EditForm Model="@review" OnValidSubmit="SubmitReview">
+    <DataAnnotationsValidator />
+
+    <div class="row responsive col-2">
+
+        <div class="stack mgb-5">
+            <label class="mgb">Your Name</label>
+            <InputText class="pd bd corner-2" @bind-Value="review.CustomerName" />
+            <ValidationMessage class="fsz-12 mgt cl-fatal" For="@(() => review.CustomerName)" />
+        </div>
+
+        <div class="stack mgb-5">
+            <label class="mgb">Occupation (Optional)</label>
+            <InputText class="pd bd corner-2" @bind-Value="review.Position" />
+        </div>
+
+        <div class="stack mgb-5">
+            <label class="mgb">Rating</label>
+            <InputSelect class="pd bd corner-2" @bind-Value="review.Rating">
+                <option value="">Select Rating</option>
+                <option value="5">★★★★★ Excellent</option>
+                <option value="4">★★★★☆ Very Good</option>
+                <option value="3">★★★☆☆ Good</option>
+                <option value="2">★★☆☆☆ Fair</option>
+                <option value="1">★☆☆☆☆ Poor</option>
+            </InputSelect>
+            <ValidationMessage class="fsz-12 mgt cl-fatal" For="@(() => review.Rating)" />
+        </div>
+
+        <div class="stack mgb-5 mgt-2">
+            <label class="mgb">Photo (Optional)</label>
+            <InputFile OnChange="UploadImage" />
+            @if (!string.IsNullOrWhiteSpace(review.ImageUrl))
+            {
+                <img src="@ImageUrlService.GetImageUrl(review.ImageUrl)" class="wx-25 hx-05 corner-3" />
+            }
+        </div>
+
+        <div class="stack mgb-5 mgt-2">
+            <label class="mgb">Your Review</label>
+            <InputTextArea class="pd bd corner-2 hx-2" @bind-Value="review.Comment" />
+            <ValidationMessage class="fsz-12 mgt cl-fatal" For="@(() => review.Comment)" />
+        </div>
+
+    </div>
+
+    <div class="wf">
+        <button class=" wf bg-primary button pd corner-2 bd-none" disabled="@isSaving">
+            @(isSaving ? "Submitting..." : "Submit Review")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <p class="cl-success mgt-5">@successMessage</p>
+    }
+
+</EditForm>
+
+
+@code {
+    private Review review = new();
+    private bool isSaving;
+    private string successMessage = "";
+
+    private async Task SubmitReview()
+    {
+        isSaving = true;
+        review.IsPublished = false;
+        await ReviewApiService.CreateReviewAsync(review);
+
+        successMessage = "Thank you! Your review has been submitted and is awaiting approval.";
+
+        review = new();
+        isSaving = false;
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var imageUrl = await UploadService.UploadImageAsync(file, "meals");
+
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            review.ImageUrl = imageUrl;
+        }
+    }
+
+}

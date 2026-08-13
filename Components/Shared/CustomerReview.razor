@@ -1,0 +1,52 @@
+@inject IReviewApiService ReviewApiService
+
+<div class="wvg-5">
+    <div class="flex flex-center stack">
+        <div class="flex mgb-5">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-30">What Our Customers</h3>
+            <h3 class="cl-secondary mgb-0 mgt-0 fsz-30">Say</h3>
+        </div>
+    </div>
+    <div class="pd-5 flex">
+        <div class="flex flex-center flow mahx-6 scroll-y">
+            @foreach (var review in reviews)
+            {
+                <CustomerCard Review="review" />
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="wvl-5">
+    <div class="flex flex-center stack">
+        <div class="flex mgb-5">
+            <h3 class="mgr-3 mgt-0 mgb-0 fsz-25">What Our Customers</h3>
+            <h3 class="cl-secondary mgb-0 mgt-0 fsz-25">Say</h3>
+        </div>
+    </div>
+    <div class="flex">
+        <div class="flex flex-center flow mahx-6 scroll-y">
+            @foreach (var review in reviews)
+            {
+                <CustomerCard Review="review" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Review> reviews = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        reviews = (await ReviewApiService.GetReviewsAsync())
+            .Where(r => r.IsPublished)
+            .ToList();
+
+        StateHasChanged();
+    }
+}

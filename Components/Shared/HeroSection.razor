@@ -1,0 +1,100 @@
+@using silvaspoon.Components.Pages
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using silvaspoon.Services
+@inject IBusinessSettingsApiService BusinessSetting
+@inject IContactSettingsApiService ContactSetting
+@implements IDisposable
+@inject IImageUrlService ImageUrlService
+@inject BusinessSettingsState BusinessSettingsState
+
+<div class="pd-5 herosection wvg-5">
+    <div class="pd-5 wvg-5 flex slide-in-top stack flex-center">
+        <div class="mgt-20">
+            <p class="mg-0 pd fsz-20 bdb bdb-primary cl-white op-7 text-center pdb-5 reenie-beanie-regular">Welcome to
+            </p>
+            <div class="container-fluid flex">
+                <div class="flex wf">
+                    <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                         alt="@businessInfoSetting.BusinessName" class="wx-1 hx-1 corner-03" />
+                </div>
+                <div class="flex pd fsz-40">
+                    <p class="cl-secondary fw-bold fsz-70 mg-0 op-9">@businessInfoSetting.BusinessName.ToUpper()</p>
+                </div>
+            </div>
+        </div>
+        <p class="mg-0 pd fsz-20 wx-4 text-center bdt pd cl-white op-7 bdt-primary">Delivered home-made meals that are
+            fresh to your
+            doorstep.</p>
+            <div class="mgt-10">
+                <NavLink href="Recipe">
+                    <button class="pd fsz-15 corner-3 bg-secondary bd-none mgb-5 button">
+                        View Our Recipes
+                        <i class="mdi mdi-food"></i>
+                    </button>
+                </NavLink>
+                <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
+                    <button class="pd fsz-15 corner-3 bg-primary bd-none button">
+                        <i class="mdi mdi-whatsapp"></i>
+                        Chat on WhatsApp
+                    </button>
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="pd-5 herosection flex flow wvl-5">
+        <div class="pd-5 flex slide-in-top stack flex-center">
+            <div class="mgt-20">
+                <p class="mg-0 fsz-15 bdb bdb-primary cl-white op-7 text-center pdb-5 reenie-beanie-regular">Welcome to</p>
+                <div class="flex fsz-40 flex-center">
+                    <p class="cl-secondary fw-bold fsz-40 mg-0">@businessInfoSetting.BusinessName.ToUpper()</p>
+                </div>
+            </div>
+            <p class="mg-0 fsz-15 text-center cl-white pd op-7 bdt bdt-primary">Delivered home-made meals delivered fresh to
+                your doorstep.
+            </p>
+            <div class="mgt-10 text-center">
+                <NavLink href="Recipe">
+                    <button class="pd fsz-15 corner-3 bg-secondary bd-none mgb-5 button">
+                        View Our Recipes
+                        <i class="mdi mdi-food"></i>
+                    </button>
+                </NavLink>
+                <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
+                    <button class="pd fsz-15 corner-3 bg-primary bd-none button">
+                        <i class="mdi mdi-whatsapp"></i>
+                        Chat on WhatsApp
+                    </button>
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+@code {
+    private BusinessSetting businessInfoSetting = new();
+    private ContactSetting contactInfoSetting = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+
+        BusinessSettingsState.Set(businessInfoSetting);
+        BusinessSettingsState.OnChange += Refresh;
+    }
+
+    private void Refresh()
+    {
+        businessInfoSetting = BusinessSettingsState.Current;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        BusinessSettingsState.OnChange -= Refresh;
+    }
+}

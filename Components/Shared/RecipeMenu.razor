@@ -1,0 +1,381 @@
+@page "/Recipe/Content/{RecipeId:int}"
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Services.Recipe
+@using Microsoft.JSInterop
+@inject RecipeRatingStorageService RecipeRatingStorageService
+@inject IRecipeApiService RecipeApiService
+@inject IImageUrlService ImageUrlService
+@inject RecipeFavoriteStorageService FavoriteStorageService
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<div class="wvl-5">
+    <NavBar />
+</div>
+
+@if (recipe != null)
+{
+    <div class="pdt-20">
+        <div class="pdt-5 mgb-10">
+            <div class="flex mgb-5">
+                <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd pointer"
+                   @onclick='() => Nav.NavigateTo("/Recipe")'></i>
+                <div class="mgt-3">
+                    <h3 class="mg-0">Back to recipes</h3>
+                </div>
+            </div>
+
+            <div class="mgb-10 row responsive colm-25">
+                <div class="mgr-5 miwx-25 mgb-5">
+                    <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" alt="@recipe.Title" class="wf hx-4 corner-2">
+                </div>
+                <div class="miwx-25">
+                    <div>
+                        <h1 class="mg-0 pdb">@recipe.Title</h1>
+                        <p class="mg-0">@recipe.Description</p>
+                    </div>
+                    <div class="flex mgt-5">
+                        <div class="mgr-5 flex flex-center stack">
+                            <i class="mdi mdi-clock-outline fsz-30"></i>
+                            <h5 class="mg-0 cl-secondary">@recipe.PrepTime mins</h5>
+                            <p class="mg-0 fsz-12">Prep Time</p>
+                        </div>
+                        <div class="mgr-5 flex flex-center stack">
+                            <i class="mdi mdi-clock-alert-outline fsz-30"></i>
+                            <h5 class="mg-0 cl-secondary">@recipe.CookTime</h5>
+                            <p class="mg-0 fsz-12">Cook Time</p>
+                        </div>
+                        <div class="mgr-5 flex flex-center stack">
+                            <i class="mdi mdi-account-heart fsz-30"></i>
+                            <h5 class="mg-0 cl-secondary">@recipe.Servings</h5>
+                            <p class="mg-0 fsz-12">Servings</p>
+                        </div>
+                        <div class="mgr-5 flex flex-center stack">
+                            <i class="mdi mdi-database-alert-outline fsz-30"></i>
+                            <h5 class="mg-0 cl-secondary">@recipe.Difficulty</h5>
+                            <p class="mg-0 fsz-12">Difficulty</p>
+                        </div>
+                        <div class="mgr-5 flex flex-center stack">
+                            <i class="mdi mdi-star-outline fsz-30"></i>
+                            <h5 class="mg-0 cl-secondary">@recipe.Rating.ToString("0.0")</h5>
+                            <p class="mg-0 fsz-12">Rating</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-start flow mgt-10">
+
+                        <button class="bg-secondary corner-1 bd-none pd fsz-15 mgr-5" @onclick="ToggleFavorite">
+                            <i class="mdi @(isFavorite ? "mdi-heart" : "mdi-heart-outline")"></i>
+
+                            @(isFavorite ? "Liked" : "Like")
+
+                            @if (recipe.FavoriteCount > 0)
+                            {
+                                <span class="mgl-5">@recipe.FavoriteCount</span>
+                            }
+                        </button>
+
+                        <button class="bd corner-1 bd-none pd fsz-15" @onclick="CopyRecipe">
+                            <i class="mdi mdi-content-copy"></i>
+                            @(recipeCopied ? "Recipe Copied!" : "Copy Recipe")
+                        </button>
+
+                    </div>
+
+                    <div class="mgt-10">
+                        <p class="mg-0 pdb-5">
+                            Rate this recipe
+                        </p>
+
+                        <div class="flex flex-start">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var star = i;
+
+                                @if (hasRated)
+                                {
+                                    <i class="mdi @(userRating.HasValue && star <= userRating.Value ? "mdi-star" : "mdi-star-outline")
+                                        fsz-25 mgr-2 cl-secondary" style="cursor:@(hasRated ? "default" : "pointer");"
+                                       @onclick="@(hasRated ? null : () => RateRecipe(star))">
+                                    </i>
+                                }
+                                else
+                                {
+                                    <i class="mdi @(userRating.HasValue && star <= userRating.Value ? "mdi-star" : "mdi-star-outline")
+                                        fsz-25 mgr-2" style="cursor:@(hasRated ? "default" : "pointer");"
+                                       @onclick="@(hasRated ? null : () => RateRecipe(star))">
+                                    </i>
+                                }
+                            }
+
+                            <span class="mgl-7 mgt-2">
+                                @recipe.Rating.ToString("0.0")
+                                (@recipe.RatingCount)
+                            </span>
+                        </div>
+
+                        @if (hasRated)
+                        {
+                            <p class="mg-0 mgt-2 fsz-12">
+                                You have already rated this recipe.
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row responsive colm-3">
+            <div class="bd miwx-25 mgr-5 mgb-5 wvg-5">
+                <h4 class="mg-0 bg-primary pd bd bd-primary">Ingredients</h4>
+                @foreach (var ingredient in recipe.Ingredients.OrderBy(x => x.DisplayOrder))
+                {
+                    <div class="flex flex-start pd">
+                        <div class="flex flex-center mgb-3">
+                            <i class="mdi mdi-dots-circle cl-secondary fsz-15 mgr-5"></i>
+                            <p class="mg-0">@ingredient.Ingredient</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="bd miwx-25 mgb-5 wvl-5">
+                <h4 class="mg-0 bg-primary pd bd bd-primary">Ingredients</h4>
+                @foreach (var ingredient in recipe.Ingredients.OrderBy(x => x.DisplayOrder))
+                {
+                    <div class="flex flex-start pd">
+                        <div class="flex flex-center mgb-3">
+                            <i class="mdi mdi-dots-circle cl-secondary fsz-15 mgr-5"></i>
+                            <p class="mg-0">@ingredient.Ingredient</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="bd miwx-25">
+                <h4 class="mg-0 bg-primary pd bd bd-primary">Instructions</h4>
+                <div class="flex flex-start stack">
+                    @foreach (var instruction in recipe.Instructions.OrderBy(x => x.StepNumber))
+                    {
+                        <div class="mgb-3 pd">
+                            <div class="flex flex-center">
+                                <div class="wx-01 hx-01 bd round bd-secondary pd mgr-5 flex flex-center">
+                                    <p class="pd cl-secondary fw-bold fsz-15">
+                                        @instruction.StepNumber
+                                    </p>
+                                </div>
+
+                                <p class="mg-0">@instruction.Instruction</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="pd mgt-10">
+            <div class="mgb-5">
+                <div class="pdt pdb mgb">
+                    <h3 class="mg-0">You Might Also Like</h3>
+                </div>
+
+                <div class="flex flex-start scroll">
+                    @foreach (var relatedRecipe in relatedRecipes)
+                    {
+                        <NavLink href="@($"/Recipe/Content/{relatedRecipe.Id}")" style="text-decoration: none;"
+                                 class="cl-black">
+
+                            <RecipeCard MealTitle="@relatedRecipe.Title" MealDesc="@relatedRecipe.Description"
+                                        ResRating="@relatedRecipe.Rating.ToString("0.0")" ResCount="@relatedRecipe.RatingCount"
+                                        Img="@ImageUrlService.GetImageUrl(relatedRecipe.ImageUrl)" ResDiff="@relatedRecipe.Difficulty"
+                                        Category="@relatedRecipe.Category" Timing="@relatedRecipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
+                        </NavLink>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <Footer />
+}
+else
+{
+    <div class="pd text-center">
+        <p>Loading recipe...</p>
+    </div>
+}
+
+@code {
+    [Parameter] public int RecipeId { get; set; }
+
+    private Recipe? recipe;
+    private List<Recipe> relatedRecipes = new();
+
+    private bool isFavorite;
+    private bool isFavoriteProcessing;
+    private bool recipeCopied = false;
+
+    private bool hasRated;
+    private int? userRating;
+    private bool ratingInProgress;
+
+    private IEnumerable<Recipe> filteredRecipes =>
+    relatedRecipes
+        .Where(x => x.IsPublished)
+        .OrderBy(x => Guid.NewGuid())
+        .Take(6);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RecipeId == 0)
+            return;
+
+        recipe = await RecipeApiService.GetRecipeAsync(RecipeId);
+
+        if (recipe != null)
+        {
+            isFavorite =
+                await FavoriteStorageService.IsFavoriteAsync(recipe.Id);
+
+            hasRated = await RecipeRatingStorageService.HasRatedAsync(RecipeId);
+
+            if (hasRated)
+            {
+                userRating = await RecipeRatingStorageService.GetRatingAsync(RecipeId);
+            }
+
+            var recipes = await RecipeApiService.GetRecipesAsync();
+
+            relatedRecipes = recipes
+                .Where(x => x.IsPublished && x.Id != recipe.Id)
+                .OrderBy(x => Guid.NewGuid())
+                .Take(5)
+                .ToList();
+        }
+    }
+
+    private async Task ToggleFavorite()
+    {
+        if (recipe == null || isFavoriteProcessing)
+            return;
+
+        isFavoriteProcessing = true;
+
+        try
+        {
+            if (!isFavorite)
+            {
+                var count = await RecipeApiService
+                    .AddFavoriteAsync(recipe.Id);
+
+                if (count.HasValue)
+                {
+                    recipe.FavoriteCount = count.Value;
+                    isFavorite = true;
+
+                    await FavoriteStorageService
+                        .SetFavoriteAsync(recipe.Id);
+                }
+            }
+            else
+            {
+                var count = await RecipeApiService
+                    .RemoveFavoriteAsync(recipe.Id);
+
+                if (count.HasValue)
+                {
+                    recipe.FavoriteCount = count.Value;
+                    isFavorite = false;
+
+                    await FavoriteStorageService
+                        .RemoveFavoriteAsync(recipe.Id);
+                }
+            }
+        }
+        finally
+        {
+            isFavoriteProcessing = false;
+        }
+    }
+
+    private async Task RateRecipe(int rating)
+    {
+        if (recipe == null || hasRated || ratingInProgress)
+            return;
+
+        if (rating < 1 || rating > 5)
+            return;
+
+        ratingInProgress = true;
+
+        var result = await RecipeApiService.AddRatingAsync(
+            recipe.Id,
+            rating);
+
+        if (result != null)
+        {
+            recipe.Rating = result.Rating;
+            recipe.RatingCount = result.RatingCount;
+
+            userRating = rating;
+            hasRated = true;
+
+            await RecipeRatingStorageService.SaveRatingAsync(
+                recipe.Id,
+                rating);
+        }
+
+        ratingInProgress = false;
+    }
+
+    private async Task CopyRecipe()
+    {
+        if (recipe == null)
+            return;
+
+        var ingredients = string.Join(
+            "\n",
+            recipe.Ingredients
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x => $"• {x.Ingredient}")
+        );
+
+        var instructions = string.Join(
+            "\n",
+            recipe.Instructions
+                .OrderBy(x => x.StepNumber)
+                .Select(x => $"{x.StepNumber}. {x.Instruction}")
+        );
+
+        var text = $"""
+        {recipe.Title}
+
+        {recipe.Description}
+
+        Category: {recipe.Category}
+        Difficulty: {recipe.Difficulty}
+        Prep Time: {recipe.PrepTime} mins
+        Cook Time: {recipe.CookTime} mins
+        Servings: {recipe.Servings}
+
+        INGREDIENTS
+        {ingredients}
+
+        INSTRUCTIONS
+        {instructions}
+        """;
+
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+
+        recipeCopied = true;
+        StateHasChanged();
+
+        await Task.Delay(2000);
+
+        recipeCopied = false;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,118 @@
+﻿@using silvaspoon.Components.Shared
+@using silvaspoon.Services.Settings
+@using silvaspoon.Models.Settings
+@using Microsoft.AspNetCore.Components.Authorization
+@using silvaspoon.Authentication
+@using silvaspoon.Services
+@inject IJSRuntime JS
+
+@inherits LayoutComponentBase
+
+@inject IBusinessSettingsApiService BusinessSetting
+@inject BusinessSettingsState BusinessSettingsState
+
+@inject IAuthApiService AuthService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+<div class="flex wf bg-primary-01">
+    <div class="slide-in-left wvg-5" style="display: @(showMenu ? "blobk" : "none");">
+        <AdminNavMenu LogoutRequested="ShowLogoutDialog" />
+    </div>
+
+
+    <div class="slide-in-left wvl-5 pos-fixed t-0 l-0 bl-0" style="display: @(showMenu ? "none" : "block");">
+        <AdminNavMenu LogoutRequested="ShowLogoutDialog" />
+    </div>
+
+
+    <div class="scroll wf" style="height: 100vh;">
+        <div class="flex flex-spacebetween flex-center mgb-5 pd bg-primary-01">
+            <i class="mdi mdi-menu fsz-25 " @onclick="ShowMenu"></i>
+            <div>
+                <p class="mg-0 fsz-12 fw-bold">Hello,
+                    <p class="mg-0 cl-secondary fw-bold inline">@businessInfoSetting.BusinessName</p>
+                    Administrator.</p>
+                </div>
+            </div>
+            <main class="pd body">
+                <div class="">
+                    @Body
+                </div>
+            </main>
+        </div>
+    </div>
+
+    @if (ShowConfirmDialog)
+    {
+        <ConfirmDialog Text="Are you sure you want to logout?" ConfirmBtn="Logout" CancelBtn="Cancel" Confirm="ConfirmLogout"
+                       Cancel="CancelLogout" />
+    }
+
+    <div id="blazor-error-ui" data-nosnippet>
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+
+@code {
+    private bool showMenu = true;
+
+    private bool ShowConfirmDialog;
+
+    private BusinessSetting businessInfoSetting = new();
+
+    private void ShowMenu()
+    {
+        showMenu = !showMenu;
+    }
+
+    private void ShowLogoutDialog()
+    {
+        ShowConfirmDialog = true;
+    }
+
+    private void CancelLogout()
+    {
+        ShowConfirmDialog = false;
+    }
+
+    private async Task ConfirmLogout()
+    {
+        ShowConfirmDialog = false;
+
+        await AuthService.LogoutAsync();
+
+        if (AuthStateProvider
+            is CustomAuthenticationStateProvider authStateProvider)
+        {
+            authStateProvider.NotifyUserLogout();
+        }
+
+        Nav.NavigateTo("/Login");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+
+        BusinessSettingsState.Set(businessInfoSetting);
+
+        BusinessSettingsState.OnChange += Refresh;
+    }
+
+    public void Dispose()
+    {
+        BusinessSettingsState.OnChange -= Refresh;
+    }
+
+    private void Refresh()
+    {
+        businessInfoSetting = BusinessSettingsState.Current;
+
+        InvokeAsync(StateHasChanged);
+    }
+}
+
+    

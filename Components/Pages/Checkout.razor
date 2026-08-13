@@ -1,0 +1,304 @@
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject IDeliverySettingsApiService DeliverySettingsApiService
+@inject IMealApiService MealApiService
+@inject CartService Cart
+@inject NavigationManager Nav
+
+@implements IDisposable
+
+
+<div class="wvg-5">
+    <div class="z-5 bg-black-03 hf wf scroll" style="position:fixed; top:70px;">
+        <div class="wx-35 bg-card shadow-border-5 slide-in-top" style="position:absolute; right:50px;">
+
+            <div class="bd pd shadow-card-10">
+
+                <!-- Header -->
+                <div class="flex pd flex-spacebetween flex-center bdb">
+                    <i class="mdi mdi-arrow-left mg-0 fsz-25 pointer" @onclick="BackToCart"></i>
+                    <h3 class="mg-0">Checkout</h3>
+                    <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="Cart.CloseCheckout"></i>
+                </div>
+
+                <EditForm class="mahx-5 scroll-y" Model="@order" OnValidSubmit="PlaceOrder">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="pd">
+                        <h4 class="mgt--2 pd bg-black-01 text-center">Customer Information</h4>
+
+                        <!-- Full Name -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Full Name</label>
+                            <InputText class="pd bd corner-2" @bind-Value="order.CustomerName" />
+                            <ValidationMessage For="@(() => order.CustomerName)" />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Phone Number</label>
+                            <InputText class="pd bd corner-2" @bind-Value="order.PhoneNumber" />
+                            <ValidationMessage For="@(() => order.PhoneNumber)" />
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Delivery Address</label>
+                            <InputTextArea class="pd bd corner-2" rows="3" @bind-Value="order.DeliveryAddress" />
+                            <ValidationMessage For="@(() => order.DeliveryAddress)" />
+                        </div>
+
+                        <!-- Note -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Order Note (Optional)</label>
+                            <InputTextArea class="pd bd corner-2" rows="3" @bind-Value="order.Note" />
+                        </div>
+
+                        <hr />
+
+                        <!-- Order Summary -->
+                        @* <div>
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0">Subtotal</p>
+                                <h4 class="mg-0">₦@Cart.Total.ToString("N0")</h4>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0 op-7">@Cart.TotalItems Item(s)</p>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-15 bg-secondary-01 cl-secondary pd">
+                                <h3 class="mg-0">Total</h3>
+                                <h3 class="mg-0 cl-secondary">₦@Cart.Total.ToString("N0")</h3>
+                            </div>
+                        </div> *@
+
+
+                        <div>
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0">Subtotal</p>
+                                <h4 class="mg-0">₦@Subtotal.ToString("N0")</h4>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0">Delivery Fee</p>
+                                <h4 class="mg-0">₦@DeliveryFee.ToString("N0")</h4>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0 op-7">@Cart.TotalItems Item(s)</p>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-15 bg-secondary-01 cl-secondary pd">
+                                <h3 class="mg-0">Total</h3>
+                                <h3 class="mg-0 cl-secondary">
+                                    ₦@Total.ToString("N0")
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex flex-end">
+                            <button type="button" class="pd corner-2 bd mgr-5 button" @onclick="CloseCheckout">
+                                Cancel
+                            </button>
+
+                            <button type="submit" disabled="@isSaving" class="pd bg-primary corner-2 bd-none button">
+                                @(isSaving ? "Placing Order..." : "Place Order")
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="wf bg-black-01" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 7;">
+        <div class="bg-card shadow-border-5 slide-in-left" style="position: absolute; bottom: 0; left: 0; right: 0;">
+
+            <div class="bd pd shadow-card-10">
+
+                <!-- Header -->
+                <div class="flex pd flex-spacebetween flex-center bdb">
+                    <i class="mdi mdi-arrow-left mg-0 fsz-25 pointer" @onclick="BackToCart"></i>
+                    <h3 class="mg-0">Checkout</h3>
+                    <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="Cart.CloseCheckout"></i>
+                </div>
+
+                <EditForm class="mahx-6 scroll-y" Model="@order" OnValidSubmit="PlaceOrder">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="pd">
+                        <h4 class="mgt--2 pd bg-black-01 text-center">Customer Information</h4>
+
+                        <!-- Full Name -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Full Name</label>
+                            <InputText class="pd bd corner-2" @bind-Value="order.CustomerName" />
+                            <ValidationMessage For="@(() => order.CustomerName)" />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Phone Number</label>
+                            <InputText class="pd bd corner-2" @bind-Value="order.PhoneNumber" />
+                            <ValidationMessage For="@(() => order.PhoneNumber)" />
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Delivery Address</label>
+                            <InputTextArea class="pd bd corner-2" rows="3" @bind-Value="order.DeliveryAddress" />
+                            <ValidationMessage For="@(() => order.DeliveryAddress)" />
+                        </div>
+
+                        <!-- Note -->
+                        <div class="stack mgb-5">
+                            <label class="mgb-2">Order Note (Optional)</label>
+                            <InputTextArea class="pd bd corner-2" rows="3" @bind-Value="order.Note" />
+                        </div>
+
+                        <hr />
+
+                        <!-- Order Summary -->
+                        <div>
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0">Subtotal</p>
+                                <h4 class="mg-0">₦@Subtotal.ToString("N0")</h4>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0">Delivery Fee</p>
+                                <h4 class="mg-0">₦@DeliveryFee.ToString("N0")</h4>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-5">
+                                <p class="mg-0 op-7">@Cart.TotalItems Item(s)</p>
+                            </div>
+
+                            <div class="flex flex-spacebetween mgb-15 bg-secondary-01 cl-secondary pd">
+                                <h3 class="mg-0">Total</h3>
+                                <h3 class="mg-0 cl-secondary">
+                                    ₦@Total.ToString("N0")
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex flex-end">
+                            <button type="button" class="pd corner-2 bd mgr-5 button" @onclick="CloseCheckout">
+                                Cancel
+                            </button>
+
+                            <button type="submit" disabled="@isSaving" class="pd bg-primary corner-2 bd-none button">
+                                @(isSaving ? "Placing Order..." : "Place Order")
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Cart.ShowOrderSuccess)
+{
+    <OrderSuccess />
+}
+
+@code {
+    private bool isSaving;
+
+    private CreateOrderDto order = new();
+
+    private DeliverySetting? deliverySetting;
+
+    private decimal Subtotal =>
+        Cart.Items.Sum(x => x.Meal.Price * x.Quantity);
+
+    private decimal DeliveryFee
+    {
+        get
+        {
+            if (deliverySetting is null)
+                return 0;
+
+            if (deliverySetting.FreeDeliveryAbove > 0 &&
+                Subtotal >= deliverySetting.FreeDeliveryAbove)
+            {
+                return 0;
+            }
+
+            return deliverySetting.DeliveryFee;
+        }
+    }
+
+    private decimal Total =>
+        Subtotal + DeliveryFee;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cart.OnChange += Refresh;
+
+        deliverySetting = await DeliverySettingsApiService.GetAsync();
+    }
+
+    private void BackToCart()
+    {
+        Cart.CloseCheckout();
+        Cart.OpenCart();
+    }
+
+    private void CloseCheckout()
+    {
+        Cart.CloseCheckout();
+    }
+
+    private async Task PlaceOrder()
+    {
+        isSaving = true;
+
+        var dto = new CreateOrderDto
+        {
+            CustomerName = order.CustomerName,
+            PhoneNumber = order.PhoneNumber,
+            DeliveryAddress = order.DeliveryAddress,
+            Note = order.Note,
+
+            Items = Cart.Items.Select(x => new OrderItemDto
+            {
+                MealId = x.Meal.Id,
+                Quantity = x.Quantity
+            }).ToList()
+        };
+
+        var createdOrder = await MealApiService.CreateOrderAsync(dto);
+
+        Cart.Clear();
+
+        Cart.OpenOrderSuccess(createdOrder.OrderId);
+
+        isSaving = false;
+    }
+
+    private void CloseSuccess()
+    {
+        Cart.CloseCheckout();
+        Cart.CloseCart();
+    }
+
+    private void Refresh()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Cart.OnChange -= Refresh;
+    }
+}

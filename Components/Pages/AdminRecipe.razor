@@ -1,0 +1,385 @@
+@page "/Admin/Recipe"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.WebUtilities
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using silvaspoon.Models.Pagination
+
+@inject IRecipeApiService RecipeApiService
+@inject IImageUrlService ImageUrlService
+@inject IMealSettingsApiService MealCategoryService
+@inject NavigationManager Nav
+@layout AdminLayout
+
+
+<div class="mgt--10">
+    <div class="flex pdt pdb flex-spacebetween">
+        <h3>Recipe</h3>
+        <button class="bg-primary bd-none corner-2 pd flex flex-center button"
+                @onclick='() => Nav.NavigateTo("/Admin/Recipe/NewRecipe")'>
+            <i class="mdi mdi-plus fsz-20"></i>
+            Add New Recipe
+        </button>
+    </div>
+
+    <div class="flex flex-start flow mgb-10">
+
+        <div class="flex flex-start flow mgb-10">
+
+            <RecipeStat Img="icons/tmeals.svg" Text1="Total Recipe"
+                        NumCount="@((recipeStats?.TotalRecipes ?? 0).ToString())" />
+
+            <RecipeStat Img="icons/cooking.svg" Text1="Published"
+                        NumCount="@((recipeStats?.PublishedRecipes ?? 0).ToString())" />
+
+            <RecipeStat Img="icons/stock.svg" Text1="Drafts"
+                        NumCount="@((recipeStats?.DraftRecipes ?? 0).ToString())" />
+
+            <RecipeStat Img="icons/customer.svg" Text1="Total Likes"
+                        NumCount="@((recipeStats?.TotalFavorites ?? 0).ToString())" />
+        </div>
+
+    </div>
+
+    <div class="mgb-3 flex flex-spacebetween flow">
+        <div class="mgb-2">
+            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1" @onclick='() => FilterByCategory("all")'>
+                All
+            </button>
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="flex">
+
+            <input type="text" placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
+                   @bind="searchRecipe" @onkeydown="HandleSearchKeyDown" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchRecipes">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="wf">
+        <div class="wf hx-5 scroll">
+            <table class="wf shadow-border-5">
+
+                <thead>
+                    <tr>
+                        <th class="bd pd bg-primary-02">#</th>
+                        <th class="bd pd bg-primary-02">Image</th>
+                        <th class="bd pd bg-primary-02">Name</th>
+                        <th class="bd pd bg-primary-02">Category</th>
+                        <th class="bd pd bg-primary-02">Cooking Time</th>
+                        <th class="bd pd bg-primary-02">Likes</th>
+                        <th class="bd pd bg-primary-02">Ratings</th>
+                        <th class="bd pd bg-primary-02">Date Added</th>
+                        <th class="bd pd bg-primary-02">Status</th>
+                        <th class="bd pd bg-primary-02">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (recipes == null)
+                    {
+                        <tr>
+                            <td colspan="10" class="bd pd text-center bg-white">
+                                Loading recipes...
+                            </td>
+                        </tr>
+                    }
+                    else if (!recipes.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="bd pd text-center bg-white">
+                                No recipes found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var index = 1;
+
+                        @foreach (var recipe in recipes)
+                        {
+                            <tr>
+
+                                <td class="bd pd bg-white text-center">
+                                    @index
+                                </td>
+
+                                <td class="bd pd bg-white">
+
+                                    <div class="flex flex-center">
+
+                                        <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)"
+                                             class="wx-05 hx-05 bd corner-2 pd-1" />
+
+                                    </div>
+
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @recipe.Title
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @recipe.Category
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @(recipe.PrepTime + recipe.CookTime) mins
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @recipe.FavoriteCount
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @recipe.Rating.ToString("0.0")
+                                </td>
+
+                                <td class="bd pd bg-white">
+                                    @recipe.CreatedAt.ToString("MMM dd, yyyy")
+                                </td>
+
+                                <td class="bd pd bg-white">
+
+                                    <div class="flex flex-center">
+
+                                        @if (recipe.IsPublished)
+                                        {
+                                            <Badge BadgeTitle="Published" BgColor="rgb(0,141,0,0.3)" ClColor="rgb(0,141,0)" />
+                                        }
+                                        else
+                                        {
+                                            <Badge BadgeTitle="Draft" BgColor="rgba(255,193,7,0.3)" ClColor="#B88600" />
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                                <td class="bd pd bg-white">
+
+                                    <div class="flex flex-center">
+
+                                        <i class="mdi mdi-eye cl-primary fsz-20 mgr-5 pointer"
+                                           @onclick="() => ShowRecipeDetails(recipe.Id)">
+                                        </i>
+
+                                        <i class="mdi mdi-pencil fsz-20 mgr-5 pointer" @onclick="() => EditRecipe(recipe.Id)">
+                                        </i>
+
+                                        <i class="mdi mdi-delete cl-fatal fsz-20 pointer"
+                                           @onclick="() => ConfirmDeleteRecipe(recipe.Id)">
+                                        </i>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (recipePage != null && recipePage.TotalItems > 0)
+        {
+            <Pagination CurrentPage="@currentPage" PageSize="@pageSize" PageTotal="@recipePage.TotalItems"
+                        TotalPages="@recipePage.TotalPages" PreviousPage="PreviousPage" NextPage="NextPage" GoToPage="GoToPage" />
+        }
+    </div>
+</div>
+
+@if (showRecipeDetails)
+{
+    <AdminRecipeDetails RecipeId="@selectedRecipeId" OnClick="() => showRecipeDetails = false" />
+}
+
+@if (confirmRecipeDelete)
+{
+    <ConfirmDialog Text="Are you sure you want to delete this recipe?" ConfirmBtn="Delete" CancelBtn="Cancel"
+                   Confirm="DeleteRecipe" Cancel="CancelDeleteRecipe" />
+}
+
+@code
+{
+    private RecipeStats? recipeStats;
+    private string currentFilter = "all";
+    private List<silvaspoon.Models.Recipe>? recipes;
+    private List<MealCategory> categories = new();
+    private string searchRecipe = "";
+
+    private bool confirmRecipeDelete;
+    private int recipeToDeleteId;
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private PagedResult<silvaspoon.Models.Recipe>? recipePage;
+
+
+    private bool showRecipeDetails;
+    private int selectedRecipeId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await MealCategoryService.GetAsync()
+            ?? new List<MealCategory>();
+
+        await LoadRecipes();
+        await LoadRecipeStats();
+    }
+
+    private async Task FilterByCategory(string category)
+    {
+        currentFilter = category;
+        currentPage = 1;
+
+        await LoadRecipes();
+    }
+
+    private async Task SearchRecipes()
+    {
+        currentPage = 1;
+
+        await LoadRecipes();
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchRecipes();
+        }
+    }
+
+    private async Task LoadRecipes()
+    {
+        try
+        {
+            recipePage = await RecipeApiService.GetPagedRecipesAsync(
+            currentPage,
+            pageSize,
+            string.IsNullOrWhiteSpace(searchRecipe) ? null : searchRecipe,
+            currentFilter == "all" ? null : currentFilter);
+
+            recipes = recipePage.Items;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading recipes: {ex}");
+            recipes = new List<silvaspoon.Models.Recipe>();
+        }
+    }
+
+    private async Task LoadRecipeStats()
+    {
+        recipeStats = await RecipeApiService.GetRecipeStatsAsync();
+    }
+
+    private void ShowRecipeDetails(int recipeId)
+    {
+        selectedRecipeId = recipeId;
+        showRecipeDetails = true;
+    }
+
+    private void EditRecipe(int recipeId)
+    {
+        Nav.NavigateTo($"/Admin/Recipe/Edit/{recipeId}");
+    }
+
+    private void ConfirmDeleteRecipe(int id)
+    {
+        recipeToDeleteId = id;
+        confirmRecipeDelete = true;
+    }
+
+    private void CancelDeleteRecipe()
+    {
+        confirmRecipeDelete = false;
+    }
+
+    @* private async Task DeleteRecipe()
+    {
+        confirmRecipeDelete = false;
+
+        var deleted = await RecipeApiService.DeleteRecipeAsync(recipeToDeleteId);
+
+        if (deleted)
+        {
+            await LoadRecipes();
+        }
+    } *@
+
+    private async Task DeleteRecipe()
+    {
+        confirmRecipeDelete = false;
+
+        var deleted = await RecipeApiService.DeleteRecipeAsync(recipeToDeleteId);
+
+        if (deleted)
+        {
+            await LoadRecipes();
+            await LoadRecipeStats();
+        }
+
+        recipeToDeleteId = 0;
+    }
+
+    private string FormatViews(int views)
+    {
+        if (views >= 1_000_000)
+            return $"{views / 1_000_000.0:0.#}M";
+
+        if (views >= 1_000)
+            return $"{views / 1_000.0:0.#}k";
+
+        return views.ToString();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || recipePage == null || page > recipePage.TotalPages)
+            return;
+
+        currentPage = page;
+
+        await LoadRecipes();
+    }
+
+    private async Task NextPage()
+    {
+        if (recipePage == null || currentPage >= recipePage.TotalPages)
+            return;
+
+        currentPage++;
+
+        await LoadRecipes();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage <= 1)
+            return;
+
+        currentPage--;
+
+        await LoadRecipes();
+    }
+}

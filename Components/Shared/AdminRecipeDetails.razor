@@ -1,0 +1,315 @@
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using Microsoft.JSInterop
+
+@inject IRecipeApiService RecipeApiService
+@inject NavigationManager Nav
+@inject IImageUrlService ImageUrlService
+@inject IJSRuntime JS
+
+@if (recipe != null)
+{
+    <div class="wvg-5">
+        <div class="bg-black-03" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+            <div class="flex pd flex-spacebetween flex-center wx-4 bdb bg-card"
+                 style="position: absolute; top: 0; right: 0; z-index: 5;">
+                <h3 class="mg-0">Recipe Details</h3>
+                <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="HandleClick"></i>
+            </div>
+
+            <div class="hf" style="position: relative;">
+                <div class="slide-in-top bg-card pd shadow-border-5 wx-4 scroll"
+                     style="position: absolute; right: 0; top: 0; bottom: 0;">
+
+                    <div class="hx-05 wf" style="visibility: hidden;"></div>
+                    <div class="mgb-10 row responsive colm-25">
+
+                        <div class="mgr-5 miwx-25 mgb-5">
+                            <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" alt="@recipe.Title"
+                                 class="wf hx-4 corner-2">
+                        </div>
+                        <div class="miwx-25">
+                            <div>
+                                <h1 class="mg-0 pdb">@recipe.Title</h1>
+                                <p class="mg-0">@recipe.Description</p>
+                            </div>
+                            <div class="flex mgt-5">
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-clock-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.PrepTime mins</h5>
+                                    <p class="mg-0 fsz-12">Prep Time</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-clock-alert-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.CookTime</h5>
+                                    <p class="mg-0 fsz-12">Cook Time</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-account-heart fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Servings</h5>
+                                    <p class="mg-0 fsz-12">Servings</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-database-alert-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Difficulty</h5>
+                                    <p class="mg-0 fsz-12">Difficulty</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-star-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Rating.ToString("0.0")</h5>
+                                    <p class="mg-0 fsz-12">Rating</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-start flow mgt-10">
+                                <button class="bg-secondary corner-1 bd-none pd fsz-15" @onclick="CopyRecipe">
+                                    <i class="mdi mdi-content-copy mgr-2"></i>
+                                    @(recipeCopied ? "Recipe Copied!" : "Copy Recipe")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row responsive colm-3">
+                        <div class="bd miwx-25 mgb-5">
+                            <h4 class="mg-0 bg-primary pd bd bd-primary">Ingredients</h4>
+                            @if (recipe.Ingredients != null && recipe.Ingredients.Any())
+                            {
+                                @foreach (var ingredient in recipe.Ingredients.OrderBy(x => x.DisplayOrder))
+                                {
+                                    <div class="flex flex-start pd">
+                                        <div class="flex flex-center ">
+                                            <i class="mdi mdi-dots-circle cl-secondary fsz-15 mgr-5"></i>
+                                            <p class="mg-0">@ingredient.Ingredient</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="cl-secondary pd">No ingredients added.</p>
+                            }
+                        </div>
+
+                        <div class="bd miwx-25">
+                            <h4 class="mg-0 bg-primary pd bd bd-primary">Instructions</h4>
+                            <div class="flex flex-start stack">
+                                @if (recipe.Instructions != null && recipe.Instructions.Any())
+                                {
+                                    <div class="flex flex-start stack">
+
+                                        @foreach (var instruction in recipe.Instructions.OrderBy(x => x.StepNumber))
+                                        {
+                                            <div class="mgb-3 pd">
+                                                <div class="flex flex-center">
+                                                    <div class="wx-01 hx-01 bd round bd-secondary pd mgr-5 flex flex-center">
+                                                        <p class="pd cl-secondary fw-bold fsz-15">
+                                                            @instruction.StepNumber
+                                                        </p>
+                                                    </div>
+                                                    <p class="mg-0">@instruction.Instruction</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="cl-secondary pd">No instructions added.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wvl-5">
+        <div class="bg-black-03" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+            <div class="flex pd flex-spacebetween flex-center wx-4 bdb bg-card"
+                 style="position: absolute; top: 0; right: 0; z-index: 5;">
+                <h3 class="mg-0">Recipe Details</h3>
+                <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="HandleClick"></i>
+            </div>
+
+            <div class="hf" style="position: relative;">
+                <div class="slide-in-top bg-card pd shadow-border-5 wx-4 scroll"
+                     style="position: absolute; right: 0; top: 0; bottom: 0;">
+
+                    <div class="hx-05 wf" style="visibility: hidden;"></div>
+                    <div class="mgb-10 row responsive colm-25">
+
+                        <div class="mgr-5 miwx-25 mgb-5">
+                            <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" alt="@recipe.Title"
+                                 class="wf hx-4 corner-2">
+                        </div>
+                        <div class="miwx-25">
+                            <div>
+                                <h1 class="mg-0 pdb">@recipe.Title</h1>
+                                <p class="mg-0">@recipe.Description</p>
+                            </div>
+                            <div class="flex mgt-5">
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-clock-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.PrepTime mins</h5>
+                                    <p class="mg-0 fsz-12">Prep Time</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-clock-alert-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.CookTime</h5>
+                                    <p class="mg-0 fsz-12">Cook Time</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-account-heart fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Servings</h5>
+                                    <p class="mg-0 fsz-12">Servings</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-database-alert-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Difficulty</h5>
+                                    <p class="mg-0 fsz-12">Difficulty</p>
+                                </div>
+                                <div class="mgr-5 flex flex-center stack">
+                                    <i class="mdi mdi-star-outline fsz-30"></i>
+                                    <h5 class="mg-0 cl-secondary">@recipe.Rating.ToString("0.0")</h5>
+                                    <p class="mg-0 fsz-12">Rating</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-start flow mgt-10">
+                                <button class="bg-secondary corner-1 bd-none pd fsz-15" @onclick="CopyRecipe">
+                                    <i class="mdi mdi-content-copy mgr-2"></i>
+                                    @(recipeCopied ? "Recipe Copied!" : "Copy Recipe")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row responsive colm-3">
+                        <div class="bd miwx-25 mgb-5">
+                            <h4 class="mg-0 bg-primary pd bd bd-primary">Ingredients</h4>
+                            @if (recipe.Ingredients != null && recipe.Ingredients.Any())
+                            {
+                                @foreach (var ingredient in recipe.Ingredients.OrderBy(x => x.DisplayOrder))
+                                {
+                                    <div class="flex flex-start pd">
+                                        <div class="flex flex-center ">
+                                            <i class="mdi mdi-dots-circle cl-secondary fsz-15 mgr-5"></i>
+                                            <p class="mg-0">@ingredient.Ingredient</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="cl-secondary pd">No ingredients added.</p>
+                            }
+                        </div>
+
+                        <div class="bd miwx-25">
+                            <h4 class="mg-0 bg-primary pd bd bd-primary">Instructions</h4>
+                            <div class="flex flex-start stack">
+                                @if (recipe.Instructions != null && recipe.Instructions.Any())
+                                {
+                                    <div class="flex flex-start stack">
+
+                                        @foreach (var instruction in recipe.Instructions.OrderBy(x => x.StepNumber))
+                                        {
+                                            <div class="mgb-3 pd">
+                                                <div class="flex flex-center">
+                                                    <div class="wx-01 hx-01 bd round bd-secondary pd mgr-5 flex flex-center">
+                                                        <p class="pd cl-secondary fw-bold fsz-15">
+                                                            @instruction.StepNumber
+                                                        </p>
+                                                    </div>
+                                                    <p class="mg-0">@instruction.Instruction</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="cl-secondary pd">No instructions added.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter] public int RecipeId { get; set; }
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private Recipe? recipe;
+
+    private bool recipeCopied = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RecipeId == 0)
+            return;
+
+        recipe = await RecipeApiService.GetRecipeAsync(RecipeId);
+    }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+
+    
+
+    private async Task CopyRecipe()
+    {
+        if (recipe == null)
+            return;
+
+        var ingredients = recipe.Ingredients?
+            .OrderBy(x => x.DisplayOrder)
+            .Select(x => $"• {x.Ingredient}") ?? Enumerable.Empty<string>();
+
+        var instructions = recipe.Instructions?
+            .OrderBy(x => x.StepNumber)
+            .Select(x => $"{x.StepNumber}. {x.Instruction}") ?? Enumerable.Empty<string>();
+
+        var recipeText = $"""
+            {recipe.Title}
+
+            {recipe.Description}
+
+            Category: {recipe.Category}
+            Prep Time: {recipe.PrepTime} minutes
+            Cook Time: {recipe.CookTime} minutes
+            Servings: {recipe.Servings}
+            Difficulty: {recipe.Difficulty}
+
+            Rating: {recipe.Rating:0.0} ({recipe.RatingCount} ratings)
+
+            INGREDIENTS
+            {string.Join(Environment.NewLine, ingredients)}
+
+            INSTRUCTIONS
+            {string.Join(Environment.NewLine, instructions)}
+            """;
+
+        await JS.InvokeVoidAsync(
+            "navigator.clipboard.writeText",
+            recipeText);
+
+        recipeCopied = true;
+
+        StateHasChanged();
+
+        await Task.Delay(2000);
+
+        recipeCopied = false;
+
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,360 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+
+@inject IMealApiService MealApiService
+@inject IImageUrlService ImageUrlService
+@inject IDeliverySettingsApiService DeliverySettingsApiService
+@inject CartService CartService
+
+
+@if (order != null)
+{
+    <div class="wvg-5">
+        <div class="bg-black-03" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+            <div class="flex pd flex-spacebetween flex-center wx-4 bdb bg-card"
+                 style="position: absolute; top: 0; right: 0; z-index: 5;">
+                <h3 class="mg-0">Order Details</h3>
+                <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="HandleClick"></i>
+            </div>
+            <div class="slide-in-top bg-card pd shadow-border-5 wx-4"
+                 style="position: absolute; right: 0; top: 0; bottom: 0;">
+                <div class="hx-05 wf" style="visibility: hidden;"></div>
+                <div class="hf scroll-y mgb-5">
+                    <div class="pd-5 corner-2 bd bd-secondary bg-secondary-01 mgb-10">
+                        <div class="flex flex-spacebetween flex-center">
+                            <div class="mgb-10">
+                                <p class="mg-0 cl-secondary op-5">Order Id</p>
+                                <h2 class="mg-0 cl-secondary">#ORD-@order.Id</h2>
+                            </div>
+                            <div class="mgt--5">
+                                <Badge BadgeTitle="@order.Status" BgColor="@GetStatusColor(order.Status)"
+                                       ClColor="@GetStatusTextColor(order.Status)" />
+                            </div>
+                        </div>
+                        <div class="">
+                            <p class="mg-0 cl-secondary op-5">Order Time</p>
+                            <h2 class="mg-0 cl-secondary">@order.OrderedAt.ToString("dd MMM yyyy, hh:mm tt")</h2>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div>
+                            <h4 class="mg-0 pdb-5">Customer Information</h4>
+                            <div class="flex">
+                                <div class="mgb-5 mgr-20">
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-human fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Name:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-phone fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Phone:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-location-enter fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Address:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-note fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Note:</h4>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div>
+                                        <p class="mgt-0">@order.CustomerName</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.PhoneNumber</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.DeliveryAddress</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.Note</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mgb-15">
+                            <h4 class="mgt-3 mgb-0 mgl-0 mgr-0">Order Items</h4>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <div class="flex flex-spacebetween flex-center mgt-1 pd bg-primary-01">
+                                    <div class="flex flex-center">
+                                        <img src="@ImageUrlService.GetImageUrl(item.Meal?.ImageUrl)"
+                                             class="hx-04 wx-04 corner-2 mgr-5">
+                                        <p class="mg-0">@item.Meal?.Name</p>
+                                    </div>
+                                    <p class="mg-0">x @item.Quantity</p>
+                                    <p class="mg-0">₦@((item.UnitPrice * item.Quantity).ToString("N0"))</p>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="flex flex-spacebetween pd">
+                            <p class="mg-0">Subtotal</p>
+                            <h3 class="mg-0">₦@Subtotal.ToString("N0")</h3>
+                        </div>
+
+                        <div class="flex flex-spacebetween pd">
+                            <p class="mg-0">Delivery Fee</p>
+                            <h3 class="mg-0">₦@DeliveryFee.ToString("N0")</h3>
+                        </div>
+
+                        <div class="flex flex-spacebetween pd bg-secondary-01 cl-secondary">
+                            <p class="mg-0 fw-bold">Total</p>
+                            <h3 class="mg-0">₦@Total.ToString("N0")</h3>
+                        </div>
+                    </div>
+                    <div class="wf hx-1" style="visibility: hidden;">
+
+                    </div>
+                </div>
+
+                <div class="pd bg-card" style="position: absolute; bottom: 0; left: 0; right: 0;">
+                    <h4 class="mg-0 pdb-5">Update Status</h4>
+                    <div class="flex flex-spacebetween flex-center">
+                        <InputSelect class="pd bd fsz-16" @bind-Value="selectedStatus">
+                            <option>Pending</option>
+                            <option>Preparing</option>
+                            <option>On Delivery</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                        </InputSelect>
+                        <button class="pd bg-primary bd-none corner-2 fsz-16" @onclick="SaveStatus">Save Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wvl-5">
+        <div class="bg-black-03" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+            <div class="slide-in-left bg-card pd shadow-border-5" style="position: absolute; right: 0; top: 0; bottom: 0;">
+                <div class="flex pd flex-spacebetween flex-center bdb">
+                    <h3 class="mg-0">Order Details</h3>
+                    <i class="mdi mdi-close mg-0 fsz-25 pointer cl-warning" @onclick="HandleClick"></i>
+                </div>
+
+                <div class="hf scroll-y mgb-5">
+                    <div class="pd-5 corner-2 bd bd-secondary bg-secondary-01 mgb-10">
+                        <div class="flex flex-spacebetween flex-center">
+                            <div class="mgb-10">
+                                <p class="mg-0 cl-secondary op-5">Order Id</p>
+                                <h2 class="mg-0 cl-secondary">#ORD-@order.Id</h2>
+                            </div>
+                            <div class="mgt--5">
+                                <Badge BadgeTitle="@order.Status" BgColor="@GetStatusColor(order.Status)"
+                                       ClColor="@GetStatusTextColor(order.Status)" />
+                            </div>
+                        </div>
+                        <div class="">
+                            <p class="mg-0 cl-secondary op-5">Order Time</p>
+                            <h2 class="mg-0 cl-secondary">@order.OrderedAt.ToString("dd MMM yyyy, hh:mm tt")</h2>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div>
+                            <h4 class="mg-0 pdb-5">Customer Information</h4>
+                            <div class="flex">
+                                <div class="mgb-5 mgr-20">
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-human fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Name:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-phone fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Phone:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-location-enter fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Address:</h4>
+                                    </div>
+                                    <div class="flex mgb-3">
+                                        <i class="mdi mdi-note fsz-17 corner-3 mgr-5"></i>
+                                        <h4 class="mg-0">Note:</h4>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div>
+                                        <p class="mgt-0">@order.CustomerName</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.PhoneNumber</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.DeliveryAddress</p>
+                                    </div>
+                                    <div>
+                                        <p class="mgt--2">@order.Note</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mgb-15">
+                            <h4 class="mgt-3 mgb-0 mgl-0 mgr-0">Order Items</h4>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <div class="flex flex-spacebetween flex-center mgt-1 pd bg-primary-01">
+                                    <div class="flex flex-center">
+                                        <img src="@ImageUrlService.GetImageUrl(item.Meal?.ImageUrl)"
+                                             class="hx-04 wx-04 corner-2 mgr-5">
+                                        <p class="mg-0">@item.Meal?.Name</p>
+                                    </div>
+                                    <p class="mg-0">x @item.Quantity</p>
+                                    <p class="mg-0">₦@((item.UnitPrice * item.Quantity).ToString("N0"))</p>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="flex flex-spacebetween pd">
+                            <p class="mg-0">Subtotal</p>
+                            <h3 class="mg-0">₦@Subtotal.ToString("N0")</h3>
+                        </div>
+
+                        <div class="flex flex-spacebetween pd">
+                            <p class="mg-0">Delivery Fee</p>
+                            <h3 class="mg-0">₦@DeliveryFee.ToString("N0")</h3>
+                        </div>
+
+                        <div class="flex flex-spacebetween pd bg-secondary-01 cl-secondary">
+                            <p class="mg-0 fw-bold">Total</p>
+                            <h3 class="mg-0">₦@Total.ToString("N0")</h3>
+                        </div>
+                    </div>
+                    <div class="wf hx-1" style="visibility: hidden;">
+
+                    </div>
+                </div>
+
+                <div class="pd bg-card" style="position: absolute; bottom: 0; left: 0; right: 0;">
+                    <h4 class="mg-0 pdb-5">Update Status</h4>
+                    <div class="flex flex-spacebetween flex-center">
+                        <InputSelect class="pd bd fsz-16" @bind-Value="selectedStatus">
+                            <option>Pending</option>
+                            <option>Preparing</option>
+                            <option>On Delivery</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                        </InputSelect>
+                        <button class="pd bg-primary bd-none corner-2 fsz-16" @onclick="SaveStatus">Save Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter] public int OrderId { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public EventCallback OnStatusChanged { get; set; }
+
+    private Order? order;
+
+    private DeliverySetting? deliverySetting;
+
+    private string selectedStatus = "";
+
+    private decimal Subtotal => order?.OrderItems?.Sum(x => x.UnitPrice * x.Quantity) ?? 0;
+
+    private decimal Total => Subtotal + DeliveryFee;
+
+    private decimal DeliveryFee
+    {
+        get
+        {
+            if (deliverySetting == null)
+                return 0;
+
+            if (deliverySetting.FreeDeliveryAbove > 0 &&
+                Subtotal >= deliverySetting.FreeDeliveryAbove)
+            {
+                return 0;
+            }
+
+            return deliverySetting.DeliveryFee;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (OrderId == 0)
+            return;
+
+        order = await MealApiService.GetOrderAsync(OrderId);
+
+        if (order != null)
+            selectedStatus = order.Status;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.OnChange += Refresh;
+
+        deliverySetting =
+            await DeliverySettingsApiService.GetAsync()
+            ?? new DeliverySetting();
+    }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+
+    private async Task SaveStatus()
+    {
+        if (order == null)
+            return;
+
+        await MealApiService.UpdateOrderStatusAsync(
+            order.Id,
+            selectedStatus);
+
+        order.Status = selectedStatus;
+
+        await OnStatusChanged.InvokeAsync();
+
+        await OnClick.InvokeAsync();
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Pending" => "rgba(255,193,7,.2)",
+            "Preparing" => "rgba(13,110,253,.2)",
+            "Delivered" => "rgba(25,135,84,.2)",
+            "Cancelled" => "rgba(220,53,69,.2)",
+            _ => "rgba(108,117,125,.2)"
+        };
+    }
+
+    private string GetStatusTextColor(string status)
+    {
+        return status switch
+        {
+            "Pending" => "#FFC107",
+            "Preparing" => "#0D6EFD",
+            "Delivered" => "#198754",
+            "Cancelled" => "#DC3545",
+            _ => "#6C757D"
+        };
+    }
+
+    private void Refresh()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= Refresh;
+    }
+}

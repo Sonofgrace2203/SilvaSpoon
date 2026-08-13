@@ -1,0 +1,118 @@
+@page "/Admin/Reviews/Edit/{Id:int}"
+@using Microsoft.AspNetCore.Components.Forms
+@using silvaspoon.Models
+@using silvaspoon.Services
+@inject IReviewApiService ReviewApiService
+@inject IMealApiService MealApiService
+@inject IImageUrlService ImageUrlService
+@inject IUploadApiService UploadService
+@inject NavigationManager Nav
+
+@layout AdminLayout
+
+<div>
+    <div class="flex mgb-10">
+        <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd pointer"
+           @onclick='() => Nav.NavigateTo("/Admin/Reviews")'></i>
+        <div class="mgt-3">
+            <h3 class="mg-0">Add New Review</h3>
+        </div>
+    </div>
+
+    <EditForm Model="@review" OnValidSubmit="UpdateReview">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row responsive col-3">
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label>Customer Name</label>
+                <InputText class="pd bd corner-2" @bind-Value="review.CustomerName" />
+                <ValidationMessage For="@(() => review.CustomerName)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label>Visibility</label>
+                <InputSelect class="pd bd corner-2" @bind-Value="review.IsPublished">
+                    <option value="true">Published</option>
+                    <option value="false">Draft</option>
+                </InputSelect>
+            </div>
+
+            <div class="stack mgb-10 mgr-5">
+                <label>Review</label>
+                <InputTextArea class="corner-2 hx-1 bd pd" @bind-Value="review.Comment" />
+                <ValidationMessage For="@(() => review.Comment)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5">
+                <label>Rating</label>
+                <InputSelect class="pd bd corner-2" @bind-Value="review.Rating">
+                    <option value="1">★☆☆☆☆ (1)</option>
+                    <option value="2">★★☆☆☆ (2)</option>
+                    <option value="3">★★★☆☆ (3)</option>
+                    <option value="4">★★★★☆ (4)</option>
+                    <option value="5">★★★★★ (5)</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => review.Rating)" />
+            </div>
+
+            <div class="stack mgb-10 mgr-5">
+                <label class="mgb-2">Customer Image</label>
+                <InputFile OnChange="UploadImage" />
+                @if (!string.IsNullOrWhiteSpace(review.ImageUrl))
+                {
+                    <img src="@ImageUrlService.GetImageUrl(review.ImageUrl)" class="wx-25 hx-05 corner-3 mgt-5" />
+                }
+            </div>
+        </div>
+
+        <div class="pd flex flex-end">
+            <button type="button" class="pd corner-2 bd-none mgr-5 button shadow-border-3 bd"
+                    @onclick='() => Nav.NavigateTo("/Admin/Reviews")'>Cancel</button>
+
+            <button type="submit" disabled="@isSaving" class="pd corner-2 bd-none bg-primary">
+                @(isSaving ? "Saving..." : "Update Review")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Review review = new();
+    private bool isSaving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existing = await ReviewApiService.GetReviewAsync(Id);
+
+        if (existing is null)
+        {
+            Nav.NavigateTo("/Admin/Reviews");
+            return;
+        }
+
+        review = existing;
+    }
+
+    private async Task UpdateReview()
+    {
+        isSaving = true;
+
+        await ReviewApiService.UpdateReviewAsync(Id, review);
+
+        Nav.NavigateTo("/Admin/Reviews");
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var imageUrl = await UploadService.UploadImageAsync(file, "meals");
+
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            review.ImageUrl = imageUrl;
+        }
+    }
+}

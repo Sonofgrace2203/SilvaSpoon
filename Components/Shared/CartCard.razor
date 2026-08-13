@@ -1,0 +1,56 @@
+<div class="flex flex-center">
+    <div class="flex flex-start flex-aligncenter bd corner-3 pd mgb-5 mgr-3 shadow-border-3">
+        <img src="@Img" alt="@AltTitle" class="wx-05 hx-05 corner-3" />
+
+        <div class="flex flex-spacebetween wf">
+            <div class="flex-1 pdl-10">
+                <h5 class="mg-0 pdb-2 fsz-13">@MealTitle</h5>
+                <h3 class="mg-0 pdb-2 fsz-13 cl-secondary">@MealPrice</h3>
+                <div class="">
+                    <div class="flex text-center corner-2 bd wx-1">
+                        <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0" @onclick="HandleDecre">
+                            -</button>
+                            <p class="wf fsz-15 fw-bold mg-0 pd">@Num</p>
+                            <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0" @onclick="HandleIncre">
+                                +</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="mg-0 cl-secondary fsz-20">
+                        @MealPriceTotal
+                    </h3>
+                </div>
+            </div>
+
+            <i class="mdi mdi-delete cl-dark fsz-18 pointer" @onclick="HandleRemove"></i>
+        </div>
+
+@code {
+
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string AltTitle { get; set; } = "";
+    [Parameter] public string MealPrice { get; set; } = "";
+    [Parameter] public string MealPriceTotal { get; set; } = "";
+    [Parameter] public int Num { get; set; }
+
+    [Parameter] public EventCallback OnIncrement { get; set; }
+    [Parameter] public EventCallback OnDecrement { get; set; }
+    [Parameter] public EventCallback OnRemove { get; set; }
+
+    private async Task HandleRemove()
+    {
+        await OnRemove.InvokeAsync();
+    }
+
+    private async Task HandleDecre()
+    {
+        await OnDecrement.InvokeAsync();
+    }
+
+    private async Task HandleIncre()
+    {
+        await OnIncrement.InvokeAsync();
+    }
+}

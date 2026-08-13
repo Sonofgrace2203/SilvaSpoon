@@ -1,0 +1,167 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject ISocialMediaSettingsApiService SocialMediaService
+
+<div>
+    <div class="flex mgb-10">
+        <h4 class="mg-0 pdt-1">Social Media Links</h4>
+    </div>
+
+    <div class="flex">
+        <div class="mgb-10 mgr-20 flex flex-start flow">
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-facebook fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Facebook:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.Facebook</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-instagram fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Instagram:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.Instagram</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-web fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Tiktok:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.TikTok</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-twitter fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Twitter / X:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.Twitter</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex">
+                    <i class="mdi mdi-web fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Website:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.Website</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-10">
+        <button disabled="@(isForm)" class="pd bd-none bg-primary corner-3 fsz-17" @onclick="IsForm">Edit Social
+            Links</button>
+        </div>
+
+        <div style="display: @(isForm ? "block" : "none");">
+            <EditForm Model="setting" OnValidSubmit="HandleSaveChanges">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row responsive col-3">
+                    <div class="flex bd pd bg-primary-01 mgr-5 mgb-5">
+                        <i class="mdi mdi-facebook fsz-40 mgt-5 corner-3 mgr-5"></i>
+                        <div class="stack mgb-10 wf mgr-5 miwx-25">
+                            <label for="name" class="mgb-1 fsz-15">Facebook</label>
+                            <InputText class="pd bd corner-2" @bind-Value="setting.Facebook" />
+                        </div>
+                    </div>
+
+                    <div class="flex bd pd bg-primary-01 mgr-5 mgb-5">
+                        <i class="mdi mdi-instagram fsz-40 mgt-5 corner-3 mgr-5"></i>
+                        <div class="stack mgb-10 wf mgr-5 miwx-25">
+                            <label for="name" class="mgb-1 fsz-15">Instagram</label>
+                            <InputText class="pd bd corner-2" @bind-Value="setting.Instagram" />
+                        </div>
+                    </div>
+
+                    <div class="flex bd pd bg-primary-01 mgr-5 mgb-5">
+                        <i class="mdi mdi-web fsz-40 mgt-5 corner-3 mgr-5"></i>
+                        <div class="stack mgb-10 wf mgr-5 miwx-25">
+                            <label for="name" class="mgb-1 fsz-15">Tiktok</label>
+                            <InputText class="pd bd corner-2" @bind-Value="setting.TikTok" />
+                        </div>
+                    </div>
+
+                    <div class="flex bd pd bg-primary-01 mgr-5 mgb-5">
+                        <i class="mdi mdi-twitter fsz-40 mgt-5 corner-3 mgr-5"></i>
+                        <div class="stack mgb-10 wf mgr-5 miwx-25">
+                            <label for="name" class="mgb-1 fsz-15">Twitter / X</label>
+                            <InputText class="pd bd corner-2" @bind-Value="setting.Twitter" />
+                        </div>
+                    </div>
+
+                    <div class="flex bd pd bg-primary-01 mgr-5 mgb-5">
+                        <i class="mdi mdi-web fsz-40 mgt-5 corner-3 mgr-5"></i>
+                        <div class="stack mgb-10 wf mgr-5 miwx-25">
+                            <label for="name" class="mgb-1 fsz-15">Website</label>
+                            <InputText class="pd bd corner-2" @bind-Value="setting.Website" />
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <button type="submit" class="pd corner-2 bd-none bg-primary wf button fsz-16">Save Changes</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+@code {
+    [Parameter] public EventCallback SaveChanges { get; set; }
+
+    private SocialMediaSetting setting = new();
+    private SocialMediaSetting originalSetting = new();
+
+    private bool isForm = false;
+
+    private void IsForm()
+    {
+        isForm = !isForm;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        setting = await SocialMediaService.GetAsync() ?? new SocialMediaSetting();
+
+        originalSetting = Clone(setting);
+    }
+
+    private async Task HandleSaveChanges()
+    {
+        isForm = !isForm;
+        await SaveChanges.InvokeAsync();
+    }
+
+    public async Task SaveSettings()
+    {
+        setting = await SocialMediaService.UpdateAsync(setting) ?? setting;
+
+        originalSetting = Clone(setting);
+
+        StateHasChanged();
+    }
+
+    private SocialMediaSetting Clone(SocialMediaSetting source)
+    {
+        return new SocialMediaSetting
+        {
+            Id = source.Id,
+            Facebook = source.Facebook,
+            Instagram = source.Instagram,
+            Twitter = source.Twitter,
+            TikTok = source.TikTok,
+            Website = source.Website
+        };
+    }
+}

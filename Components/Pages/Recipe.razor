@@ -1,0 +1,283 @@
+@page "/Recipe"
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using RecipeModel = silvaspoon.Models.Recipe
+
+@inject IRecipeApiService RecipeApiService
+@inject IImageUrlService ImageUrlService
+@inject IMealSettingsApiService MealCategoryService
+@inject NavigationManager Nav
+
+<div class="wvl-5">
+    <NavBar />
+</div>
+
+<div class="pdt-20 wvg-5">
+    <div class="pd-15 mgb-10 recipe">
+        <div class="mgb-10 mawx-5">
+            <h1 class="fsz-60 mg-0">Delicious Recipe Made for
+                <p class="cl-secondary mg-0 inline">You <i class="mdi mdi-heart-outline"></i></p>
+            </h1>
+            <p class="mg-0 fsz-30">Discover easy and tasty recipes you can cook at home. From local favourites to modern
+                twists.</p>
+            </div>
+
+            @* <div class="">
+                <input placeholder="Search by Order ID, Customer or Phone..."
+                       class="pd-3 bg-primary-01 corner-1 wx-3 bd-none bg-white mgb-2" />
+
+                <button class="pd bg-primary bd-none corner-1 mgr-2 wx-1">
+                    <i class="mdi mdi-magnify"></i>
+                </button>
+            </div> *@
+        </div>
+
+        <div class="pd">
+            @* <div class="flex flex-spacebetween flow">
+                <div class="flex flex-center flow mgb-5">
+                    <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1">All</button>
+                    @foreach (var category in categories)
+                    {
+                        <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                                @onclick="() => FilterByCategory(category.Name)">
+                            @category.Name
+                        </button>
+                    }
+                </div>
+            </div> *@
+
+            <div class="mgb-5">
+                <div class="pdt pdb mgb">
+                    <h3 class="mg-0">Featured Recipe</h3>
+                    <p class="mg-0">Handpicked recipes our community loves</p>
+                </div>
+
+                <div class="flex flex-start">
+                    <div class="pd-5 flex scroll flex-start">
+                        <div class="flex">
+                            @foreach (var recipe in filteredRecipes.Where(r => r.IsFeatured == false))
+                            {
+                                <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                            ResRating="@recipe.Rating.ToString("0.0")" ResCount="0"
+                                            Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                            OnClick="@(() => Nav.NavigateTo($"/Recipe/Content/{recipe.Id}"))"
+                                            Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="">
+                <div>
+                    <h3 class="mg-0 pdb">Browse by Category</h3>
+                </div>
+
+                <div class="flex flex-start">
+                    <div class="pd-5 flex scroll flex-start">
+                        <div class="flex">
+                            @foreach (var category in categories)
+                            {
+                                var recipeCount = recipes.Count(r =>
+                                    r.IsPublished &&
+                                    string.Equals(
+                                        r.Category,
+                                        category.Name,
+                                        StringComparison.OrdinalIgnoreCase));
+
+                                @if (recipeCount > 0)
+                                {
+                                    <RecipeCatCard Img="@ImageUrlService.GetImageUrl(category.ImageUrl)" MealTitle="@category.Name"
+                                                   ResCount="@recipeCount" OnClick="@(() => GoToCategory(category.Name))" />
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="flex flex-center">
+                    <button class="pd wx-3 fsz-15 bd-none bd bd-secondary cl-secondary corner-2 bg-transparent"
+                            @onclick='() => Nav.NavigateTo("Recipe/Client")'>View All
+                        Recipes</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pd flex scroll">
+                <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+                <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+                <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+                <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+                <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+            </div>
+
+            <div class="wf hx-3 op-8"
+                 style="background-image: url('icons/meals.jpg'); background-size: cover; background-repeat: no-repeat;">
+                <img src="" alt="" class="">
+            </div>
+        </div>
+
+       
+
+
+        <div class="pdt-20 wvl-5">
+            <div class="pdt-10 pdl-5 pdb-5 pdr-5 mgb-10 recipe">
+                <div class="mgb-10 mawx-5">
+                    <h1 class="fsz-40 mg-0">Delicious Recipe Made for
+                        <p class="cl-secondary mg-0 inline">You <i class="mdi mdi-heart-outline"></i></p>
+                    </h1>
+                    <p class="mg-0 fsz-20">Discover easy and tasty recipes you can cook at home. From local favourites to modern
+                        twists.</p>
+                    </div>
+
+                    @* <div class="">
+                        <input placeholder="Search by Order ID, Customer or Phone..."
+                               class="pd-3 bg-primary-01 corner-1 wx-3 bd-none bg-white mgb-2" />
+
+                        <button class="pd bg-primary bd-none corner-1 mgr-2 wx-1">
+                            <i class="mdi mdi-magnify"></i>
+                        </button>
+                    </div> *@
+                </div>
+
+                <div class="pd">
+                    @* <div class="flex flex-spacebetween flow">
+                        <div class="flex flex-center flow mgb-5">
+                            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1">All</button>
+                            @foreach (var category in categories)
+                            {
+                                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                                        @onclick="() => FilterByCategory(category.Name)">
+                                    @category.Name
+                                </button>
+                            }
+                        </div>
+                    </div> *@
+
+                    <div class="mgb-5">
+                        <div class="pdt pdb mgb">
+                            <h3 class="mg-0">Featured Recipe</h3>
+                            <p class="mg-0">Handpicked recipes our community loves</p>
+                        </div>
+
+                        <div class="flex scroll">
+                            <div class="flex">
+                                <div class="flex flex-start scroll">
+                                    @foreach (var recipe in filteredRecipes.Where(r => r.IsFeatured == false))
+                                    {
+                                        <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                                    ResRating="@recipe.Rating.ToString("0.0")" ResCount="0"
+                                                    Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                                    OnClick="@(() => Nav.NavigateTo($"/Recipe/Content/{recipe.Id}"))"
+                                                    Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div>
+                            <h3 class="mg-0 pdb">Browse by Category</h3>
+                        </div>
+
+                        <div class="flex scroll">
+                            <div class="flex">
+                                <div class="flex flex-start scroll">
+                                    @foreach (var category in categories)
+                                    {
+                                        var recipeCount = recipes.Count(r =>
+                                            r.IsPublished &&
+                                            string.Equals(
+                                                r.Category,
+                                                category.Name,
+                                                StringComparison.OrdinalIgnoreCase));
+
+                                        @if (recipeCount > 0)
+                                        {
+                                            <RecipeCatCard Img="@ImageUrlService.GetImageUrl(category.ImageUrl)" MealTitle="@category.Name"
+                                                           ResCount="@recipeCount" OnClick="@(() => GoToCategory(category.Name))" />
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-center">
+                        <button class="pd wx-3 fsz-15 bd-none bd bd-secondary cl-secondary corner-2 bg-transparent"
+                                @onclick='() => Nav.NavigateTo("Recipe/Client")'>View All
+                            Recipes</button>
+                        </div>
+                    </div>
+
+                    <div class="pd flex scroll">
+                        <RecipeGuideCard Img="icons/stock.svg" Title="Easy to Follow" Desc="Simple steps anyone can follow" />
+                        <RecipeGuideCard Img="icons/stock.svg" Title="Tasty & Tested" Desc="All recipes are tested and loved" />
+                        <RecipeGuideCard Img="icons/stock.svg" Title="Local Favorites" Desc="Nigerian meals you know and loved" />
+                        <RecipeGuideCard Img="icons/stock.svg" Title="Cook with love" Desc="Made to bring people together" />
+                    </div>
+                </div>
+
+                <div class="wf hx-3 op-8 wvl-5"
+                     style="background-image: url('icons/meals.jpg'); background-size: cover; background-repeat: no-repeat;">
+                    <img src="" alt="" class="">
+                </div>
+
+<Footer />
+
+@code {
+    [Parameter] public int RecipeId { get; set; }
+    private List<MealCategory> categories = new();
+
+    private RecipeModel? recipe;
+
+    private List<RecipeModel> recipes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipes = await RecipeApiService.GetRecipesAsync();
+
+        categories = await MealCategoryService.GetAsync()
+                 ?? new List<MealCategory>();
+
+        await LoadRecipes();
+    }
+
+    private IEnumerable<RecipeModel> filteredRecipes =>
+   recipes
+       .Where(x => x.IsPublished)
+       .OrderBy(x => Guid.NewGuid())
+       .Take(6);
+
+    private async Task FilterByCategory(string category)
+    {
+        @* currentFilter = category;
+        currentPage = 1; *@
+
+        await LoadRecipes();
+    }
+
+    private async Task LoadRecipes()
+    {
+        recipes = await RecipeApiService.GetRecipesAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RecipeId == 0)
+            return;
+
+        recipe = await RecipeApiService.GetRecipeAsync(RecipeId);
+    }
+
+    private void GoToCategory(string category)
+    {
+        Nav.NavigateTo($"/Recipe/Client?category={Uri.EscapeDataString(category)}");
+    }
+}

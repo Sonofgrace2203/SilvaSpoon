@@ -1,0 +1,70 @@
+@inject IImageUrlService ImageUrlService
+
+<div class="bd corner-3 wx-3 mgr-10 mgb-10 wvg-5 shadow-border-3" style="position: relative;" @onclick="HandleClick">
+    <img src="@Img" alt="@AltTitle" class="wf hx-25 corner-3">
+    <div class="pd">
+        <h5 class="mg-0 pdb-2 fsz-17">@MealTitle</h5>
+        <p class="mg-0">@MealDesc</p>
+        <Badge BadgeTitle="@Category" BgColor="rgb(4, 99, 7, 0.3)" ClColor="rgb(4, 99, 7)" />
+        <div class="flex flex-spacebetween flow flex-center mgt-5">
+            <div class="mgb-5">
+                <div class="flex flex-center">
+                    <i class="mdi mdi-star cl-secondary mgr-3"></i>
+                    <h3 class="pdb-2  mgr-3 mgt-8">@ResRating</h3>
+                    <p class="mg-0">(@ResCount)</p>
+                </div>
+            </div>
+            <div>
+                <div class="flex flex-center">
+                    <i class="mdi mdi-dots-circle mgr-3"></i>
+                    <p class="mg-0 op-7">@ResDiff</p>
+                </div>
+            </div>
+        </div>
+        <div class="shadow-border-5" style="position: absolute; top: 5px; left: 10px;">
+            <Badge BadgeTitle="@Timing" BgColor="rgb(4, 99, 7)" ClColor="white" />
+        </div>
+    </div>
+</div>
+
+<div class="bd corner-3 mgr-5 mgb-5 wvl-5 shadow-border-3" style="position: relative;" @onclick="HandleClick">
+    <img src="@Img" alt="@AltTitle" class="wf hx-15 corner-3">
+    <div class="pd">
+        <h5 class="mg-0 pdb-2 fsz-17">@MealTitle</h5>
+        <p class="mg-0">@MealDesc</p>
+       <Badge BadgeTitle="@Category" BgColor="rgb(4, 99, 7, 0.3)" ClColor="rgb(4, 99, 7)" />
+        <div class="flex flex-spacebetween flex-center mgt-5">
+            <div class="flex flex-center mgt--1">
+                <i class="mdi mdi-star cl-secondary mgr-1"></i>
+                <h3 class="pdb-2  mgr-1 mgt-8">@ResRating</h3>
+                <p class="mg-0">(@ResCount)</p>
+            </div>
+
+            <div class="flex flex-center">
+                <i class="mdi mdi-dots-circle mgr-1"></i>
+                <p class="mg-0 op-7">@ResDiff</p>
+            </div>
+        </div>
+        <div class="shadow-border-5" style="position: absolute; top: 5px; left: 10px; z-index: 3;">
+            <Badge BadgeTitle="@Timing" BgColor="rgb(4, 99, 7)" ClColor="white" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string MealDesc { get; set; } = "";
+    [Parameter] public string AltTitle { get; set; } = "";
+    [Parameter] public string ResRating { get; set; } = "";
+    [Parameter] public string Category { get; set; } = "";
+    [Parameter] public string Timing { get; set; } = "";
+    [Parameter] public string ResDiff { get; set; } = "";
+    [Parameter] public int ResCount { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    public async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}

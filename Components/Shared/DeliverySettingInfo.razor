@@ -1,0 +1,331 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IDeliverySettingsApiService DeliveryService
+
+<div>
+    <div class="flex mgb-10">
+        <h4 class="mg-0 pdt-1">Delivery Settings</h4>
+    </div>
+
+    <div class="flex">
+        <div class="mgb-10 mgr-20 flex flex-start flow">
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Delivery Fee:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>₦@savedSetting.DeliveryFee.ToString("N0")</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Free Delivery Above:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>₦@savedSetting.FreeDeliveryAbove.ToString("N0")</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Estimated Delivery Time:</h4>
+                </div>
+                <div>
+                    <p class="">
+                        <p>@savedSetting.EstimatedDeliveryTime</p>
+                    </p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Delivery Area:</h4>
+                </div>
+                <div class="flex flex-start flow mgt-2">
+                    @foreach (var area in savedSetting.Areas)
+                    {
+                        <div class="flex mgr">
+                            <div class="mgb-0 flex flex-center">
+                                <Badge BadgeTitle="@area.Name" BgColor="rgb(4,99,7,0.3)" ClColor="rgb(4,99,7)" />
+                                <div class="mgl">
+                                    <button type="button" class="bd-none bg-transparent mgl--3"
+                                            @onclick="() => ConfirmDeleteSavedArea(area)">
+                                        <i class="mdi mdi-delete cl-warning"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-10">
+        <button disabled="@(isForm)" class="pd bd-none bg-primary corner-3 fsz-17" @onclick="IsForm">Edit Delivery
+            Info</button>
+        </div>
+
+        <div style="display: @(isForm ? "block" : "none");">
+            <EditForm Model="@editingSetting" OnValidSubmit="HandleSaveChanges">
+                <div class="row responsive col-3">
+                    <div class="stack mgb-10 mgr-5 miwx-25">
+                        <label for="name" class="mgb-1 fsz-15">Delivery Fee</label>
+                        <InputNumber class="pd bd corner-2" @bind-Value="editingSetting.DeliveryFee" />
+                    </div>
+
+                    <div class="stack mgb-10 mgr-5 miwx-25">
+                        <label for="tag" class="mgb-1 fsz-15">Free Delivery Above</label>
+                        <InputNumber class="pd bd corner-2" @bind-Value="editingSetting.FreeDeliveryAbove" />
+                    </div>
+
+                    <div class="stack mgb-10 mgr-5 miwx-25">
+                        <label for="tag" class="mgb-1 fsz-15">Estimated Delivery Time</label>
+                        <div class="flex flex-spacebetween">
+                            <InputSelect class="pd bd corner-2" @bind-Value="editingSetting.EstimatedDeliveryTime">
+                                <option>15 - 30 minutes</option>
+                                <option>30 - 60 minutes</option>
+                                <option>1 - 2 hours</option>
+                                <option>2 - 3 hours</option>
+                            </InputSelect>
+                        </div>
+                        <p class="mg-0 pdt-1 fsz-15">priceError</p>
+                    </div>
+                </div>
+
+                <div class="stack mgb-10 mgr-5">
+                    <div class="stack mgb-10 mgr-5">
+                        <label class="mgb-1 fsz-15">Delivery Areas</label>
+
+                        <div class="flex">
+                            <InputText class="corner-2 bd pd" placeholder="Enter area..." @bind-Value="newArea"
+                                       @onkeydown="HandleKeyDown" />
+
+                            <button type="button" class="bg-primary bd-none pd mgl-2" @onclick="AddArea">
+                                Add Area
+                            </button>
+                        </div>
+
+                        <div class="flex flex-start flow mgt-2">
+                            @foreach (var area in editingSetting.Areas)
+                            {
+                                <div class="flex">
+                                    <div class="mgr-2 mgb-2 flex">
+                                        <Badge BadgeTitle="@area.Name" BgColor="rgb(4,99,7,.3)" ClColor="rgb(4,99,7)" />
+
+                                        <button type="button" class="bd-none bg-transparent mgl--3"
+                                                @onclick="() => editingSetting.Areas.Remove(area)">
+                                            <i class="cl-warning mgl-2">&times</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <button type="submit" class="pd corner-2 bd-none bg-primary wf button fsz-16">Save Changes</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (confirmAreaDelete)
+    {
+        <ConfirmDialog Text="Are you sure you want to delete this delivery area?" ConfirmBtn="Delete" CancelBtn="Cancel"
+                       Confirm="DeleteSavedArea" Cancel="CancelDeleteSavedArea" />
+    }
+
+@code {
+    [Parameter] public EventCallback SaveChanges { get; set; }
+
+    private DeliverySetting savedSetting = new();
+    private DeliverySetting editingSetting = new();
+
+    private bool confirmAreaDelete = false;
+    private DeliveryArea? areaToDelete;
+
+    private bool isForm = false;
+
+    private void IsForm()
+    {
+        isForm = !isForm;
+    }
+
+    private string newArea = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        savedSetting = await DeliveryService.GetAsync() ?? new();
+
+        savedSetting.Areas ??= new();
+
+        editingSetting = Clone(savedSetting);
+        
+        editingSetting.Areas.Clear();
+    }
+
+    private void AddArea()
+    {
+        if (string.IsNullOrWhiteSpace(newArea))
+            return;
+
+        editingSetting.Areas.Add(new DeliveryArea
+        {
+            Name = newArea.Trim()
+        });
+
+        newArea = "";
+    }
+
+    private DeliverySetting Clone(DeliverySetting source)
+    {
+        return new DeliverySetting
+        {
+            Id = source.Id,
+            DeliveryFee = source.DeliveryFee,
+            FreeDeliveryAbove = source.FreeDeliveryAbove,
+            EstimatedDeliveryTime = source.EstimatedDeliveryTime,
+            Areas = source.Areas
+                .Select(a => new DeliveryArea
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Fee = a.Fee
+                })
+                .ToList()
+        };
+    }
+
+    private void RemovePendingArea(DeliveryArea area)
+    {
+        editingSetting.Areas.Remove(area);
+    }
+
+    private async Task HandleSaveChanges()
+    {
+        isForm = !isForm;
+        await SaveChanges.InvokeAsync();
+    }
+
+    @* public async Task SaveSettings()
+    {
+        // Update the other settings
+        savedSetting.DeliveryFee = editingSetting.DeliveryFee;
+        savedSetting.FreeDeliveryAbove = editingSetting.FreeDeliveryAbove;
+        savedSetting.EstimatedDeliveryTime = editingSetting.EstimatedDeliveryTime;
+
+        // Add the new areas
+        foreach (var area in editingSetting.Areas)
+        {
+            if (!savedSetting.Areas.Any(a =>
+                a.Name.Equals(area.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                savedSetting.Areas.Add(new DeliveryArea
+                {
+                    Name = area.Name,
+                    Fee = area.Fee
+                });
+            }
+        }
+
+        // Save the merged result
+        savedSetting = await DeliveryService.UpdateAsync(savedSetting)
+                        ?? savedSetting;
+
+        // Clear only the form list
+        editingSetting.Areas.Clear();
+
+        editingSetting.DeliveryFee = savedSetting.DeliveryFee;
+        editingSetting.FreeDeliveryAbove = savedSetting.FreeDeliveryAbove;
+        editingSetting.EstimatedDeliveryTime = savedSetting.EstimatedDeliveryTime;
+
+        newArea = "";
+
+        StateHasChanged();
+    } *@
+
+    public async Task SaveSettings()
+    {
+        // Update general delivery settings
+        savedSetting.DeliveryFee = editingSetting.DeliveryFee;
+        savedSetting.FreeDeliveryAbove = editingSetting.FreeDeliveryAbove;
+        savedSetting.EstimatedDeliveryTime = editingSetting.EstimatedDeliveryTime;
+
+        // Add only the newly entered areas
+        foreach (var area in editingSetting.Areas)
+        {
+            if (!savedSetting.Areas.Any(a =>
+                a.Name.Equals(area.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                savedSetting.Areas.Add(new DeliveryArea
+                {
+                    Name = area.Name,
+                    Fee = area.Fee
+                });
+            }
+        }
+
+        // Save everything
+        savedSetting = await DeliveryService.UpdateAsync(savedSetting)
+                        ?? savedSetting;
+
+        // Reset the form
+        editingSetting.Areas = new List<DeliveryArea>();
+
+        editingSetting.DeliveryFee = savedSetting.DeliveryFee;
+        editingSetting.FreeDeliveryAbove = savedSetting.FreeDeliveryAbove;
+        editingSetting.EstimatedDeliveryTime = savedSetting.EstimatedDeliveryTime;
+
+        newArea = "";
+
+        StateHasChanged();
+    }
+
+    
+    private void ConfirmDeleteSavedArea(DeliveryArea area)
+    {
+        areaToDelete = area;
+        confirmAreaDelete = true;
+    }
+
+    private void CancelDeleteSavedArea()
+    {
+        areaToDelete = null;
+        confirmAreaDelete = false;
+    }
+
+    private async Task DeleteSavedArea()
+    {
+        if (areaToDelete == null)
+            return;
+
+        savedSetting.Areas.Remove(areaToDelete);
+
+        savedSetting = await DeliveryService.UpdateAsync(savedSetting)
+                        ?? savedSetting;
+
+        editingSetting = Clone(savedSetting);
+
+        areaToDelete = null;
+        confirmAreaDelete = false;
+
+        StateHasChanged();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddArea();
+        }
+    }
+}

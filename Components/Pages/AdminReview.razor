@@ -1,0 +1,206 @@
+@page "/Admin/Reviews"
+@attribute [Authorize(Roles = "Admin")]
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Models.Pagination
+
+@inject IReviewApiService ReviewApiService
+@inject NavigationManager Nav
+@layout AdminLayout
+
+<div class="mgt--10">
+    <div class="flex pdt pdb flex-spacebetween flex-center mgb-5">
+        <div class="mgt--4">
+            <h3 class="mgb-0">Customer Reviews</h3>
+        </div>
+        <button class="bg-primary bd-none corner-2 pd mgt-3 flex flex-center button"
+                @onclick='() => Nav.NavigateTo("/Admin/Reviews/NewReview")'>
+            <i class="mdi mdi-plus fsz-20"></i>
+            Add New Review
+        </button>
+    </div>
+
+    <div class="mgb-3 flex flex-spacebetween flow">
+        <div class="mgb-2">
+            <button class="pd bg-primary-01 bd setting-btn" @onclick="AllReviews">All</button>
+            <button class="pd bg-primary-01 bd setting-btn" @onclick="Published">Published</button>
+            <button class="pd bg-primary-01 bd setting-btn" @onclick="Draft">Drafts</button>
+        </div>
+
+        <div class="flex flex-center">
+            <input placeholder="Search review..." @bind="searchedReview"
+                   class="pd-3 bg-primary-01 corner-5 wx-3 bd-none" @onkeydown="HandleSearchKeyDown" />
+
+            <button class="pd bg-primary bd-none corner-5" @onclick="SearchReviews">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flow flex-start hx-65 scroll wvg-5 colm-3 miwx-25">
+        @if (!reviews.Any())
+        {
+            <p>No customer reviews available.</p>
+        }
+        else
+        {
+            @foreach (var review in reviews)
+            {
+                <AdminCustomerReview Review="review" OnEdit="EditReview" OnDelete="ConfirmDeleteReview" />
+            }
+        }
+    </div>
+
+    <div class="flex flow hx-6 scroll wvl-5">
+        @if (!reviews.Any())
+        {
+            <p>No customer reviews available.</p>
+        }
+        else
+        {
+            @foreach (var review in reviews)
+            {
+                <AdminCustomerReview Review="review" OnEdit="EditReview" OnDelete="ConfirmDeleteReview" />
+            }
+        }
+    </div>
+</div>
+
+@if (reviewPage != null && reviewPage.TotalItems > 0)
+{
+    <Pagination CurrentPage="@currentPage" PageSize="@pageSize" PageTotal="@reviewPage.TotalItems"
+                TotalPages="@reviewPage.TotalPages" PreviousPage="PreviousPage" NextPage="NextPage" GoToPage="GoToPage" />
+}
+
+@if (confirmReviewDelete)
+{
+    <ConfirmDialog Text="Are you sure you want to delete this review?" ConfirmBtn="Delete" CancelBtn="Cancel"
+                   Confirm="DeleteReview" Cancel="CancelDeleteReview" />
+}
+
+
+@code {
+    private string searchedReview = "";
+    private string currentFilter = "all";
+
+    private bool confirmReviewDelete = false;
+    private int reviewToDeleteId;
+
+    private List<Review> reviews = new();
+
+    private PagedResult<Review>? reviewPage;
+
+    private int currentPage = 1;
+    private int pageSize = 8;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReviews();
+    }
+
+    private async Task LoadReviews()
+    {
+        var published = currentFilter switch
+        {
+            "published" => true,
+            "drafts" => false,
+            _ => (bool?)null
+        };
+
+        reviewPage = await ReviewApiService.GetReviewsAsync(
+            currentPage,
+            pageSize,
+            searchedReview,
+            published);
+
+        reviews = reviewPage.Items;
+    }
+
+    private async Task SearchReviews()
+    {
+        currentPage = 1;
+        await LoadReviews();
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchReviews();
+        }
+    }
+
+    private async Task AllReviews()
+    {
+        currentFilter = "all";
+        currentPage = 1;
+        await LoadReviews();
+    }
+
+    private async Task Published()
+    {
+        currentFilter = "published";
+        currentPage = 1;
+        await LoadReviews();
+    }
+
+    private async Task Draft()
+    {
+        currentFilter = "drafts";
+        currentPage = 1;
+        await LoadReviews();
+    }
+
+    private void EditReview(int id)
+    {
+        Nav.NavigateTo($"/Admin/Reviews/Edit/{id}");
+    }
+
+    private void ConfirmDeleteReview(int id)
+    {
+        reviewToDeleteId = id;
+        confirmReviewDelete = true;
+    }
+
+    private void CancelDeleteReview()
+    {
+        confirmReviewDelete = false;
+    }
+
+    private async Task DeleteReview()
+    {
+        confirmReviewDelete = false;
+
+        await ReviewApiService.DeleteReviewAsync(reviewToDeleteId);
+
+        await LoadReviews();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+
+            await LoadReviews();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (reviewPage != null && currentPage < reviewPage.TotalPages)
+        {
+            currentPage++;
+
+            await LoadReviews();
+        }
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+
+        await LoadReviews();
+    }
+}

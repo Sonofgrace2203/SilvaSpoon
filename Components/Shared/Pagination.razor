@@ -1,0 +1,242 @@
+<div class="flex flex-spacebetween flow pd-5 bg-white shadow-border-5">
+
+    <p>
+        @if (PageTotal == 0)
+        {
+            <span>Showing 0 to 0 of 0 items</span>
+        }
+        else
+        {
+            <span>
+                Showing @((CurrentPage - 1) * PageSize + 1)
+                to @(Math.Min(CurrentPage * PageSize, PageTotal))
+                of @PageTotal items
+            </span>
+        }
+    </p>
+
+    <div>
+
+        <!-- Previous -->
+        <i class="mdi mdi-arrow-left pd mgr-3 mgb-2 setting-btn @(CurrentPage == 1 ? "disabled" : "")"
+           @onclick="HandlePreviousPage">
+        </i>
+
+
+        @if (TotalPages > 0)
+        {
+            <!-- First Page -->
+            @if (CurrentPage > 3)
+            {
+                <button class="bd pd corner-2 mgr-3 mgb-2 setting-btn"
+                        @onclick="() => HandleGoToPage(1)">
+                    1
+                </button>
+
+                @if (CurrentPage > 4)
+                {
+                    <span class="mgr-3">...</span>
+                }
+            }
+
+
+            <!-- Page Numbers -->
+            @for (int i = Math.Max(1, CurrentPage - 2);
+                      i <= Math.Min(TotalPages, CurrentPage + 2);
+                      i++)
+            {
+                var pageNumber = i;
+
+                <button class="bd pd corner-2 mgr-3 mgb-2 setting-btn @(pageNumber == CurrentPage ? "bg-primary cl-white" : "")"
+                        @onclick="() => HandleGoToPage(pageNumber)">
+                    @pageNumber
+                </button>
+            }
+
+
+            <!-- Last Page -->
+            @if (CurrentPage < TotalPages - 2)
+            {
+                @if (CurrentPage < TotalPages - 3)
+                {
+                    <span class="mgr-3">...</span>
+                }
+
+                <button class="bd pd corner-2 mgr-3 mgb-2 setting-btn"
+                        @onclick="() => HandleGoToPage(TotalPages)">
+                    @TotalPages
+                </button>
+            }
+        }
+
+
+        <!-- Next -->
+        <i class="mdi mdi-arrow-right pd mgr-3 mgb-2 setting-btn @(CurrentPage == TotalPages || TotalPages == 0 ? "disabled" : "")"
+           @onclick="HandleNextPage">
+        </i>
+
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public int PageSize { get; set; }
+    [Parameter] public int PageTotal { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+
+
+    [Parameter] public EventCallback PreviousPage { get; set; }
+    [Parameter] public EventCallback NextPage { get; set; }
+    [Parameter] public EventCallback<int> GoToPage { get; set; }
+
+
+    private async Task HandlePreviousPage()
+    {
+        if (CurrentPage <= 1)
+            return;
+
+        await PreviousPage.InvokeAsync();
+    }
+
+
+    private async Task HandleNextPage()
+    {
+        if (CurrentPage >= TotalPages)
+            return;
+
+        await NextPage.InvokeAsync();
+    }
+
+
+    private async Task HandleGoToPage(int page)
+    {
+        if (page < 1 || page > TotalPages)
+            return;
+
+        if (page == CurrentPage)
+            return;
+
+        await GoToPage.InvokeAsync(page);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+    <div class="flex flex-spacebetween flow pd-5 bg-white shadow-border-5">
+        <p>
+            Showing @((CurrentPage - 1) * PageSize + 1)
+            to @(Math.Min(CurrentPage * PageSize, PageTotal ?? 0))
+            of @(PageTotal ?? 0)
+            items
+        </p>
+        <div class="">
+            <i class="mdi mdi-arrow-left pd mgr-3 mgb-2 setting-btn @(CurrentPage == 1 ? "disabled" : "")"
+               @onclick="HandlePreviousPage"></i>
+            @if (Page != null)
+            {
+                var TotalPages = PageTotal;
+
+                if (CurrentPage > 3)
+                {
+                    <button class="bd pd corner-2 mgr-3 mgb-2 setting-btn" @onclick="() => HandleGoToPage(1)">
+                        1
+                    </button>
+
+                    @if (CurrentPage > 4)
+                    {
+                        <span class="mgr-3">...</span>
+                    }
+                }
+
+                @for (int i = Math.Max(1, CurrentPage - 2);
+                          i <= Math.Min(TotalPages, CurrentPage + 2);
+                          i++)
+                {
+                    var PageNumber = i;
+
+                    <button
+                        class="bd pd corner-2 mgr-3 mgb-2 setting-btn @(PageNumber == CurrentPage ? "bg-primary cl-white" : "")"
+                        @onclick="() => HandleGoToPrevious(PageNumber)">
+                        @PageNumber
+                    </button>
+                }
+
+                @if (CurrentPage < TotalPages - 2)
+                {
+                    @if (CurrentPage < TotalPages - 3)
+                    {
+                        <span class="mgr-3">...</span>
+                    }
+
+                    <button class="bd pd corner-2 mgr-3 mgb-2 setting-btn" @onclick="() => HandleGoToTotal(TotalPages)">
+                        @TotalPages
+                    </button>
+                }
+            }
+            <i class="mdi mdi-arrow-right pd mgr-3 mgb-2 setting-btn @(Page != null && CurrentPage == PageTotal ? "disabled" : "")"
+               @onclick="HandleNextPage"></i>
+        </div>
+    </div>
+
+    @code {
+        [Parameter] public int CurrentPage { get; set; }
+        [Parameter] public int PageSize { get; set; }
+        [Parameter] public int PageTotal{ get; set; }
+        [Parameter] public int TotalPages { get; set; }
+        [Parameter] public int PageNumber { get; set; }
+        [Parameter] public int Page { get; set; }
+
+        [Parameter] public EventCallback PreviousPage { get; set; }
+        [Parameter] public EventCallback NextPage { get; set; }
+        [Parameter] public EventCallback GoToPage { get; set; }
+        [Parameter] public EventCallback GoToPrevious { get; set; }
+        [Parameter] public EventCallback GoToTotal { get; set; }
+
+        private async Task HandlePreviousPage()
+        {
+            await PreviousPage.InvokeAsync();
+        }
+
+        private async Task HandleNextPage()
+        {
+            await NextPage.InvokeAsync();
+        }
+
+        private async Task HandleGoToPage()
+        {
+            await GoToPage.InvokeAsync();
+        }
+
+        private async Task HandleGoToPrevious(int PreviousPage)
+        {
+            await GoToPrevious.InvokeAsync(TotalPages);
+        }
+
+        private async Task HandleGoToTotal(int TotalPages)
+        {
+            await GoToTotal.InvokeAsync();
+        }
+    } *@

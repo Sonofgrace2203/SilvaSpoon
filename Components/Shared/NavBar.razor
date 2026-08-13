@@ -1,0 +1,176 @@
+@using silvaspoon.Components.Pages
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using silvaspoon.Services
+@implements IDisposable
+@inject CartService CartService
+@inject IBusinessSettingsApiService BusinessSetting
+@inject IContactSettingsApiService ContactSetting
+@inject IImageUrlService ImageUrlService
+@inject BusinessSettingsState BusinessSettingsState
+
+
+
+<div class="pos-fix shadow t-0 l-0 r-0 z-3 bg-card bdb-primary wvg-5 pd">
+    <div class="flex flex-spacebetween flex-center">
+        <NavLink href="" style="text-decoration: none;">
+            <div class="container-fluid">
+                <a href="" style="text-decoration: none;" class="flex flex-center">
+                    <div class="flex wf">
+                        <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                             alt="@businessInfoSetting.BusinessName" class="wx-05 hx-05 corner-03" />
+                    </div>
+                    <div class="flex pd">
+                        <h3 class="cl-secondary fsz-30 mg-0">@businessInfoSetting.BusinessName.ToUpper()</h3>
+                    </div>
+                </a>
+            </div>
+        </NavLink>
+
+        <div class="flex flex-spacebetween flex-center">
+            <div class="mgr-3">
+                <NavLink class="mgr-5 cl-primary fw-bold fsz-13 navlink" style="text-decoration: none;" href="">HOME
+                </NavLink>
+                <NavLink class="mgr-5 cl-primary fw-bold fsz-13 navlink" style="text-decoration: none;" href="Menu">MENU
+                </NavLink>
+                @* <NavLink class="mgr-5 cl-primary fw-bold fsz-13 navlink" style="text-decoration: none;" href="Tanktalk">
+                    TANKTALK
+                </NavLink> *@
+                <NavLink class="mgr-5 cl-primary fw-bold fsz-13 navlink" style="text-decoration: none;" href="Recipe">
+                    RECIPE</NavLink>
+                    <NavLink class="mgr-5 cl-primary fw-bold fsz-13 navlink" style="text-decoration: none;" href="About-Us">
+                        ABOUT US
+                    </NavLink>
+                </div>
+
+                <div style="position: relative;">
+                    <button class="mdi mdi-cart fsz-25 bg-transparent bd-none cl-secondary mgr-5"
+                            @onclick="CartService.OpenCart">
+                    </button>
+
+                    @if (HasCartItems)
+                    {
+                        <div class="round wx-01 hx-01 bg-error" style="position: absolute; top: 0; right: 15px;">
+                        </div>
+                    }
+                </div>
+
+                <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
+                    <button class="bg-primary pd bd corner-3 flex flex-center button">
+                        <i class="mdi mdi-whatsapp fw-bold fsz-20 mgr-3"></i>
+                        Chat On WhatsApp
+                    </button>
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+    <div class="wvl-5 bdb-primary">
+        <div class="pos-fix shadow t-0 l-0 r-0 z-3 bg-card">
+            <div class="flex flex-spacebetween pd bdb bdb-primary flex-center">
+                <NavLink href="" style="text-decoration: none;">
+                    <div class="container-fluid">
+                        <a href="" style="text-decoration: none;" class="flex flex-center">
+                            <div class="flex wf">
+                                <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                                     alt="@businessInfoSetting.BusinessName" class="wx-03 hx-03 corner-03" />
+                            </div>
+                            <div class="flex pd">
+                                <h3 class="cl-secondary fsz-20 mg-0">@businessInfoSetting.BusinessName.ToUpper()</h3>
+                            </div>
+                        </a>
+                    </div>
+                </NavLink>
+
+                <div>
+                    <div style="position: relative;">
+                        <button class="mdi mdi-cart fsz-25 bg-transparent bd-none cl-secondary mgr-5"
+                                @onclick="CartService.OpenCart">
+                        </button>
+
+                        @if (HasCartItems)
+                        {
+                            <div class="round wx-01 hx-01 bg-error" style="position: absolute; top: 0; right: 60px;">
+                            </div>
+                        }
+
+                        <button class="bd-none bg-transparent" @onclick="ShowMenu">
+                            <i class="mdi mdi-@(showMenu ? "cancel" : "menu") fsz-30"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="stack flex flex-center pd slide-in-top" style="display: @(showMenu ? "block" : "none");">
+                <div class="wf text-center pd fsz-20">
+                    <NavLink class="cl-primary fw-bold navlink" style="text-decoration: none;" href="">HOME</NavLink>
+                </div>
+                <div class="wf text-center pd fsz-20">
+                    <NavLink class="cl-primary fw-bold navlink" style="text-decoration: none;" href="Menu">MENU</NavLink>
+                </div>
+                <div class="wf text-center pd fsz-20">
+                    <NavLink class="cl-primary fw-bold navlink" style="text-decoration: none;" href="Recipe">RECIPE
+                    </NavLink>
+                </div>
+                <div class="wf text-center pd fsz-20">
+                    <NavLink class="cl-primary fw-bold navlink" style="text-decoration: none;" href="About-Us">ABOUT US
+                    </NavLink>
+                </div>
+
+                <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
+                    <button class="bg-primary pd bd corner-3 wf text-center flex flex-center button">
+                        <i class="mdi mdi-whatsapp fw-bold fsz-20"></i>
+                        Chat On WhatsApp
+                    </button>
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+    @if (CartService.IsCartOpen && CartService.ShowCart)
+    {
+        <Cart />
+    }
+
+@code {
+    private bool showMenu = false;
+
+    private bool HasCartItems =>
+    CartService.Items.Any();
+
+    public EventCallback OnClick { get; set; }
+
+    private BusinessSetting businessInfoSetting = new();
+    private ContactSetting contactInfoSetting = new();
+
+    private void ShowMenu()
+    {
+        showMenu = !showMenu;
+    }
+
+    private void ShowCart()
+    {
+        CartService.OpenCart();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.OnChange += Refresh;
+        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+
+        BusinessSettingsState.Set(businessInfoSetting);
+        BusinessSettingsState.OnChange += Refresh;
+    }
+
+    private void Refresh()
+    {
+        businessInfoSetting = BusinessSettingsState.Current;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= Refresh;
+        BusinessSettingsState.OnChange -= Refresh;
+    }
+}

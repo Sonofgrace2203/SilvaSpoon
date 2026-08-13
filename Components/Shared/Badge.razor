@@ -1,0 +1,13 @@
+<p style="background: @BgColor; color: @ClColor" class="corner-3 pd-1 text-center bd fsz-13 wx-1 wvg-5">
+    @BadgeTitle
+</p>
+
+<p style="background: @BgColor; color: @ClColor" class="corner-3 pd-1 text-center bd fsz-10 wx-1 wvl-5">
+    @BadgeTitle
+</p>
+
+@code {
+    [Parameter] public string BgColor { get; set; } = "";
+    [Parameter] public string ClColor { get; set; } = "";
+    [Parameter] public string BadgeTitle { get; set; } = "";
+}

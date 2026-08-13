@@ -1,0 +1,230 @@
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject IDeliverySettingsApiService DeliverySettingsApiService
+@inject IMealApiService MealApiService
+@inject CartService CartService
+@inject NavigationManager Navigation
+@inject IImageUrlService ImageUrlService
+
+@implements IDisposable
+
+<div class="wvg-5">
+    <div class="z-5 bg-black-03 hf wf scroll" style="position: fixed; top: 70px;">
+        <div class="wx-35 bg-card shadow-border-5 slide-in-top" style="position: absolute; right: 50px;">
+            <div class="bd pd shadow-card-10">
+                <div class="flex pd flex-spacebetween flex-center bdb">
+                    <i class="mdi mdi-arrow-left mg-0 fsz-25 pointer" @onclick="CartService.CloseCart"></i>
+                    <h3 class="mg-0">Your Cart</h3>
+                    @if (CartService.Items.Any())
+                    {
+                        <button class="bd-none bg-transparent cl-fatal pointer" @onclick="ConfirmClearCart">
+                            <i class="mdi mdi-delete mg-0 fsz-25 pointer cl-warning"></i>
+                        </button>
+                    }
+                </div>
+
+                <div class="pd mahx-3 scroll">
+                    @if (!CartService.Items.Any())
+                    {
+                        <div class="pd text-center bg-secondary-01 corner-2">
+                            <h4 class="cl-secondary">Your cart is empty.</h4>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var item in CartService.Items)
+                        {
+                            <div class="flex flex-spacebetween flex-center mgb-3">
+
+                                <div class="wf">
+
+                                    <CartCard Img="@ImageUrlService.GetImageUrl(item.Meal.ImageUrl)" MealTitle="@item.Meal.Name"
+                                              MealPrice="@($"₦{item.Meal.Price:N0}")"
+                                              MealPriceTotal="@($"₦{item.Meal.Price * item.Quantity:N0}")" Num="@item.Quantity"
+                                              OnIncrement="@(() => CartService.IncreaseQuantity(item.Meal.Id))"
+                                              OnDecrement="@(() => CartService.DecreaseQuantity(item.Meal.Id))"
+                                              OnRemove="@(() => CartService.RemoveMeal(item.Meal.Id))" />
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="flex flex-spacebetween pd">
+                    <p class="mg-0">Subtotal</p>
+                    <h3 class="mg-0">₦@Subtotal.ToString("N0")</h3>
+                </div>
+
+                <div class="flex flex-spacebetween pd">
+                    <p class="mg-0">Delivery Fee</p>
+                    <h3 class="mg-0">₦@DeliveryFee.ToString("N0")</h3>
+                </div>
+
+                <div class="flex flex-spacebetween pd bg-secondary-01 cl-secondary">
+                    <p class="mg-0 fw-bold">Total</p>
+                    <h3 class="mg-0">₦@Total.ToString("N0")</h3>
+                </div>
+
+                <div class="pd mgt-5">
+                    <button class="bg-primary fsz-20 bd-none wf pd-3 corner-2 mgb-3" @onclick="ProceedToCheckout"
+                            disabled="@(!CartService.Items.Any())">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="wf bg-black-01" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 6;">
+        <div class="bg-card shadow-border-5 slide-in-left" style="position: absolute; bottom: 0; left: 0; right: 0;">
+            <div class="bd pd shadow-card-10">
+                <div class="flex pd flex-spacebetween flex-center bdb">
+                    <i class="mdi mdi-arrow-left mg-0 fsz-25 pointer" @onclick="CartService.CloseCart"></i>
+                    <h3 class="mg-0">Your Cart</h3>
+                    @if (CartService.Items.Any())
+                    {
+                        <button class="bd-none bg-transparent cl-fatal pointer" @onclick="ConfirmClearCart">
+                            <i class="mdi mdi-delete mg-0 fsz-25 pointer cl-warning"></i>
+                        </button>
+                    }
+                </div>
+
+                <div class="pd mahx-3 scroll">
+                    @if (!CartService.Items.Any())
+                    {
+                        <div class="pd text-center bg-secondary-01 corner-2">
+                            <h4 class="cl-secondary">Your cart is empty.</h4>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var item in CartService.Items)
+                        {
+                            <div class="flex flex-spacebetween flex-center mgb-3">
+
+                                <div class="wf">
+                                    <CartCard Img="@ImageUrlService.GetImageUrl(item.Meal.ImageUrl)" MealTitle="@item.Meal.Name"
+                                              MealPrice="@($"₦{item.Meal.Price:N0}")"
+                                              MealPriceTotal="@($"₦{item.Meal.Price * item.Quantity:N0}")" Num="@item.Quantity"
+                                              OnIncrement="@(() => CartService.IncreaseQuantity(item.Meal.Id))"
+                                              OnDecrement="@(() => CartService.DecreaseQuantity(item.Meal.Id))"
+                                              OnRemove="@(() => CartService.RemoveMeal(item.Meal.Id))" />
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="flex flex-spacebetween pd">
+                    <p class="mg-0">Subtotal</p>
+                    <h3 class="mg-0">₦@Subtotal.ToString("N0")</h3>
+                </div>
+
+                <div class="flex flex-spacebetween pd">
+                    <p class="mg-0">Delivery Fee</p>
+                    <h3 class="mg-0">₦@DeliveryFee.ToString("N0")</h3>
+                </div>
+
+                <div class="flex flex-spacebetween pd bg-secondary-01 cl-secondary">
+                    <p class="mg-0 fw-bold">Total</p>
+                    <h3 class="mg-0">₦@Total.ToString("N0")</h3>
+                </div>
+
+
+                <div class="pd mgt-5">
+                    <button class="bg-primary fsz-20 bd-none wf pd-3 corner-2 mgb-3" @onclick="ProceedToCheckout"
+                            disabled="@(!CartService.Items.Any())">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (confirmClearCart)
+{
+    <div style="position: fixed; z-index: 10;">
+        <ConfirmDialog Text="Are you sure you want to clear your cart?" ConfirmBtn="Clear Cart" CancelBtn="Cancel"
+                       Confirm="ClearCart" Cancel="CancelClearCart" />
+    </div>
+}
+
+
+@if (CartService.ShowCheckout)
+{
+    <Checkout />
+}
+
+@if (CartService.ShowOrderSuccess)
+{
+    <OrderSuccess />
+}
+
+@code {
+    private bool confirmClearCart = false;
+    private DeliverySetting? deliverySetting;
+    private decimal Subtotal => CartService.Items.Sum(x => x.Meal.Price * x.Quantity);
+
+    private decimal Total => Subtotal + DeliveryFee;
+    private decimal DeliveryFee
+    {
+        get
+        {
+            if (deliverySetting == null)
+                return 0;
+
+            if (deliverySetting.FreeDeliveryAbove > 0 &&
+                Subtotal >= deliverySetting.FreeDeliveryAbove)
+            {
+                return 0;
+            }
+
+            return deliverySetting.DeliveryFee;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.OnChange += Refresh;
+
+        deliverySetting =
+            await DeliverySettingsApiService.GetAsync()
+            ?? new DeliverySetting();
+    }
+
+    private void ConfirmClearCart()
+    {
+        confirmClearCart = true;
+    }
+
+    private void CancelClearCart()
+    {
+        confirmClearCart = false;
+    }
+
+    private void ClearCart()
+    {
+        confirmClearCart = false;
+
+        CartService.Clear();
+    }
+
+    private void ProceedToCheckout()
+    {
+        CartService.OpenCheckout();
+    }
+
+    private void Refresh()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= Refresh;
+    }
+}

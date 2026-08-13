@@ -1,0 +1,38 @@
+@inject IImageUrlService ImageUrlService
+
+<div class="bd corner-3 hx-3 wx-3 mgr-5 mgb-5 wvg-5 shadow-border-3" style="position: relative;" @onclick="HandleClick">
+    <img src="@Img" alt="@AltTitle" class="wf hf corner-3">
+    <div class="pd">
+        <div class="bg-card corner-2 wx-1 pd cl-dark" style="position: absolute; bottom: 15px; right: 10px">
+            <i class="mdi mdi-rice fsz-50 cl-dark"></i>
+            <h3 class="cl-dark mg-0">@MealTitle</h3>
+            <p class="cl-dark mg-0">@ResCount Recipes</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="bd corner-3 hx-2 wx-2 mgr-5 mgb-5 wvl-5 shadow-border-3" style="position: relative;" @onclick="HandleClick">
+    <img src="@Img" alt="@AltTitle" class="wf hf corner-3">
+    <div class="pd">
+        <div class="bg-card corner-2 wx-1 pd cl-dark" style="position: absolute; bottom: 15px; right: 10px">
+            <i class="mdi mdi-rice fsz-50 cl-dark"></i>
+            <h3 class="cl-dark mg-0 fsz-15">@MealTitle</h3>
+            <p class="cl-dark mg-0 fsz-13">@ResCount Recipes</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string AltTitle { get; set; } = "";
+    [Parameter] public int ResCount { get; set; }
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}

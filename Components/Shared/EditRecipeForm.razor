@@ -1,0 +1,323 @@
+@page "/Admin/Recipe/Edit/{RecipeId:int}"
+@using Microsoft.AspNetCore.Components.Forms
+@using silvaspoon.Models
+@using silvaspoon.Services
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+
+@inject IRecipeApiService RecipeApiService
+@inject IMealSettingsApiService MealCategoryService
+@inject IUploadApiService UploadService
+@inject IImageUrlService ImageUrlService
+@inject NavigationManager Nav
+
+@layout AdminLayout
+
+<div>
+    <div class="flex mgb-10">
+        <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd"
+           @onclick='() => Nav.NavigateTo("Admin/Recipe")'></i>
+        <div class="mgt-3">
+            <h3 class="mg-0">Edit Recipe</h3>
+        </div>
+    </div>
+
+    <div class="row responsive col-3">
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Recipe Title</label>
+            <input type="text" class="pd bd corner-2 mgb-3" placeholder="Enter recipe title..." @bind="recipe.Title" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Category</label>
+            <select class="pd bd corner-2 mgb-3" @bind="recipe.Category">
+
+                <option value="">Select Category</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Name">@category.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Cooking Time</label>
+            <input type="number" class="pd bd corner-2 mgb-3" placeholder="Enter cooking time..."
+                   @bind="recipe.CookTime" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Prep Time</label>
+            <input type="number" class="pd bd corner-2 mgb-3" placeholder="Enter preparation time..."
+                   @bind="recipe.PrepTime" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Servings</label>
+            <input type="number" class="pd bd corner-2 mgb-3" placeholder="Number of servings..."
+                   @bind="recipe.Servings" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5 miwx-25">
+            <label class="mgb-1 fsz-15">Difficulty Level</label>
+
+            <select class="pd bd corner-2" @bind="recipe.Difficulty">
+
+                <option value="">Select Difficulty Level</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Ingredients -->
+    <div class="stack mgb-10">
+
+        <label class="mgb-1 fsz-15">Ingredients</label>
+
+        <div class="flex">
+            <input type="text" class="pd bd corner-2 mgr-5" placeholder="Enter ingredients..." @bind="newIngredient"
+                   @onkeydown="HandleIngredientKeyDown" />
+
+            <button type="button" class="bg-primary bd-none pd" @onclick="AddIngredient">
+                Add Ingredient
+            </button>
+        </div>
+
+        @if (recipe.Ingredients.Any())
+        {
+            <div class="flex flex-start flow mgt">
+
+                @foreach (var ingredient in recipe.Ingredients)
+                {
+                    <div class="flex mgr mgb">
+                        <div class="flex">
+
+                            <p class="bg-primary-02 cl-primary pd mgr">
+                                @ingredient.Ingredient
+                            </p>
+
+                            <button type="button" class="bd-none bg-transparent mgl--5"
+                                    @onclick="() => RemoveIngredient(ingredient)">
+                                <i class="mdi mdi-delete cl-warning"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+
+    <!-- Description -->
+    <div class="stack mgb-10 mgr-5">
+
+        <label class="mgb-1 fsz-15">Description</label>
+
+        <textarea class="corner-2 hx-1 bd pd mgb-3" placeholder="Enter short description..."
+                  @bind="recipe.Description"></textarea>
+
+    </div>
+
+    <!-- Instructions -->
+    <div class="stack mgb-10 mgr-5">
+
+        <label class="mgb-1 fsz-15">
+            Instructions
+        </label>
+
+        <textarea class="corner-2 hx-1 bd pd mgb-3"
+                  placeholder="Enter recipe instructions. Put each step on a new line..." @bind="instructionsText"></textarea>
+
+        <small class="cl-secondary">
+            Enter each instruction step on a new line.
+        </small>
+
+    </div>
+
+    <!-- Image -->
+    <div class="stack mgb-10 mgr-5">
+
+        <label class="mgb-1 fsz-15">Image</label>
+
+        <InputFile OnChange="UploadImage" class="pd corner-2" />
+
+        @if (!string.IsNullOrWhiteSpace(recipe.ImageUrl))
+        {
+            <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" class="wx-25 hx-05 corner-3 mgt-3" />
+        }
+
+    </div>
+
+    <!-- Status -->
+    <div class="flex flex-start flow mgb-10">
+
+        <label class="flex flex-center mgr-5">
+            <input type="checkbox" @bind="recipe.IsPublished" />
+            <span class="mgl-1">Published</span>
+        </label>
+
+        <label class="flex flex-center">
+            <input type="checkbox" @bind="recipe.IsFeatured" />
+            <span class="mgl-1">Featured</span>
+        </label>
+
+    </div>
+
+    <!-- Buttons -->
+    <div class="pd flex flex-end">
+
+        <button type="button" class="pd corner-2 bd-none mgr-5 button shadow-border-3 bd" @onclick="Cancel">
+            Cancel
+        </button>
+
+        <button type="button" disabled="@isSaving"
+                class="pd corner-2 bd-none bg-primary mgr-5 button shadow-border-3 bd" @onclick="SaveRecipe">
+
+            @(isSaving ? "Saving..." : "Update Recipe")
+
+        </button>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public int RecipeId { get; set; }
+
+    private Recipe recipe = new();
+
+    private bool isSaving;
+
+    private string newIngredient = string.Empty;
+
+    private string instructionsText = string.Empty;
+
+    private List<MealCategory> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await MealCategoryService.GetAsync()
+                 ?? new List<MealCategory>();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RecipeId <= 0)
+            return;
+
+        var existingRecipe =
+            await RecipeApiService.GetRecipeAsync(RecipeId);
+
+        if (existingRecipe == null)
+        {
+            Nav.NavigateTo("/Admin/Recipe");
+            return;
+        }
+
+        recipe = existingRecipe;
+
+        instructionsText = string.Join(
+            Environment.NewLine,
+            recipe.Instructions
+                .OrderBy(x => x.StepNumber)
+                .Select(x => x.Instruction));
+    }
+
+    private void AddIngredient()
+    {
+        var ingredient = newIngredient.Trim();
+
+        if (string.IsNullOrWhiteSpace(ingredient))
+            return;
+
+        recipe.Ingredients.Add(new RecipeIngredient
+        {
+            Ingredient = ingredient,
+            DisplayOrder = recipe.Ingredients.Count + 1
+        });
+
+        newIngredient = string.Empty;
+    }
+
+    private void RemoveIngredient(RecipeIngredient ingredient)
+    {
+        recipe.Ingredients.Remove(ingredient);
+
+        for (int i = 0; i < recipe.Ingredients.Count; i++)
+        {
+            recipe.Ingredients[i].DisplayOrder = i + 1;
+        }
+    }
+
+    private async Task HandleIngredientKeyDown(
+        KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddIngredient();
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var imageUrl = await UploadService.UploadImageAsync(
+            file,
+            "recipes");
+
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            recipe.ImageUrl = imageUrl;
+        }
+    }
+
+    private async Task SaveRecipe()
+    {
+        if (isSaving)
+            return;
+
+        isSaving = true;
+
+        try
+        {
+            recipe.Instructions = instructionsText
+                .Split(
+                    '\n',
+                    StringSplitOptions.RemoveEmptyEntries |
+                    StringSplitOptions.TrimEntries)
+                .Select((instruction, index) => new RecipeInstruction
+                {
+                    StepNumber = index + 1,
+                    Instruction = instruction
+                })
+                .ToList();
+
+            var result =
+                await RecipeApiService.UpdateRecipeAsync(
+                    recipe.Id,
+                    recipe);
+
+            if (result != null)
+            {
+                Nav.NavigateTo("/Admin/Recipe");
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/Admin/Recipe");
+    }
+}

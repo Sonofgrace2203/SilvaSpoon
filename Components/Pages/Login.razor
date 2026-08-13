@@ -1,0 +1,196 @@
+@page "/Login"
+@using Microsoft.AspNetCore.Components.Forms
+@using silvaspoon.Models.Auth
+@using silvaspoon.Authentication
+@inject IAuthApiService AuthApiService
+@inject CustomAuthenticationStateProvider CustomerAuthenticationStateProvider
+@inject NavigationManager Nav
+@layout LoginLayout
+
+<div class="flex flex-center stack loginbg wvg-5">
+    <div class="bd pd mgt-30 corner-2 shadow-border-4 wx-4 mgb-10 bg-card-08">
+        <div class="flex flex-center pd">
+            <h3 class="cl-primary fsz-40 mg-0">SILVA</h3>
+            <h3 class="cl-secondary fsz-40 mg-0">SPOON</h3>
+        </div>
+
+        <div class="mgb-10 pd">
+            <h2 class="mg-0 mgb-5">Welcome back 🖐️</h2>
+            <p class="fsz-16 mg-0">Sign in to your admin account</p>
+        </div>
+
+        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
+            <div class="pd stack">
+                <label for="username" class="fsz-13 mgb-3">Username</label>
+
+                <InputText id="username" type="text" placeholder="Enter username" class="corner-2 pd bd mgb-2"
+                           @bind-Value="loginModel.Username" />
+
+                <ValidationMessage For="@(() => loginModel.Username)" />
+            </div>
+
+            <div class="pd stack">
+                <label for="password" class="fsz-13 mgb-3">Password</label>
+
+                <div class="flex flex-center pos-rel">
+                    <InputText id="password" type="@(ShowPassword ? "text" : "password")" placeholder="Enter password"
+                               class="corner-2 pd bd wf" @bind-Value="loginModel.Password" />
+
+                    <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                            @onclick="TogglePasswordVisibility">
+                        <i class="mdi @(ShowPassword ? "mdi-eye-off-outline" : "mdi-eye-outline") fsz-20"></i>
+                    </button>
+                </div>
+
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+
+            @* <div class="pd">
+                <p class="text-right mg-0 fsz-13 cl-secondary button">
+                    Forget password?
+                </p>
+            </div> *@
+
+            <div class="pd button">
+                <button type="submit" class="pd wf bg-primary corner-2 bd-none fsz-17" disabled="@IsLoading">
+
+                    @(IsLoading ? "Signing in..." : "Sign in")
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(LoginError))
+            {
+                <p class="fsz-13 cl-fatal pd">
+                    @LoginError
+                </p>
+            }
+        </EditForm>
+    </div>
+    <p class="text-center fsz-15 fw-bold mgt--5 cl-white bg-secondary pd">SilvaSpoon Admin Panel</p>
+</div>
+
+
+
+<div class="flex flex-center stack loginbg wvl-5">
+    <div class="bd pd mgt-30 corner-2 shadow-border-4 wf mgb-10 bg-card-08">
+        <div class="flex flex-center pd">
+            <h3 class="cl-primary fsz-40 mg-0">SILVA</h3>
+            <h3 class="cl-secondary fsz-40 mg-0">SPOON</h3>
+        </div>
+
+        <div class="mgb-10 pd">
+            <h2 class="mg-0 mgb-5">Welcome back 🖐️</h2>
+            <p class="fsz-16 mg-0">Sign in to your admin account</p>
+        </div>
+
+        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
+            <div class="pd stack">
+                <label for="username" class="fsz-13 mgb-3">Username</label>
+
+                <InputText id="username" type="text" placeholder="Enter username" class="corner-2 pd bd mgb-2"
+                           @bind-Value="loginModel.Username" />
+
+                <ValidationMessage For="@(() => loginModel.Username)" />
+            </div>
+
+            <div class="pd stack">
+                <label for="password" class="fsz-13 mgb-3">Password</label>
+
+                <div class="flex flex-center pos-rel">
+                    <InputText id="password" type="@(ShowPassword ? "text" : "password")" placeholder="Enter password"
+                               class="corner-2 pd bd wf" @bind-Value="loginModel.Password" />
+
+                    <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                            @onclick="TogglePasswordVisibility">
+                        <i class="mdi @(ShowPassword ? "mdi-eye-off-outline" : "mdi-eye-outline") fsz-20"></i>
+                    </button>
+                </div>
+
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+
+            @* <div class="pd">
+                <p class="text-right mg-0 fsz-13 cl-secondary button">
+                    Forget password?
+                </p>
+            </div> *@
+
+            <div class="pd button">
+                <button type="submit" class="pd wf bg-primary corner-2 bd-none fsz-17" disabled="@IsLoading">
+
+                    @(IsLoading ? "Signing in..." : "Sign in")
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(LoginError))
+            {
+                <p class="fsz-13 cl-fatal pd">
+                    @LoginError
+                </p>
+            }
+        </EditForm>
+    </div>
+    <p class="text-center fsz-15 fw-bold mgt--5 cl-white bg-secondary pd">SilvaSpoon Admin Panel</p>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(LoginError))
+{
+    <p class="fsz-13">@LoginError</p>
+}
+
+@code {
+    private LoginModel loginModel = new();
+
+    private string LoginError { get; set; } = string.Empty;
+
+    private bool IsLoading { get; set; }
+
+    private bool ShowPassword { get; set; }
+
+    private async Task HandleLogin()
+    {
+        LoginError = string.Empty;
+        IsLoading = true;
+
+        try
+        {
+            var result = await AuthApiService.LoginAsync(
+                new silvaspoon.Models.Auth.LoginRequest
+                {
+                    Username = loginModel.Username,
+                    Password = loginModel.Password
+                });
+
+            if (result is null)
+            {
+                LoginError = "Invalid username or password.";
+                return;
+            }
+
+            if (CustomerAuthenticationStateProvider
+                is CustomAuthenticationStateProvider authStateProvider)
+            {
+                authStateProvider.NotifyUserAuthentication(result.Token);
+            }
+
+            Nav.NavigateTo("/Dashboard");
+        }
+        catch
+        {
+            LoginError = "Unable to sign in. Please try again.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        ShowPassword = !ShowPassword;
+    }
+}

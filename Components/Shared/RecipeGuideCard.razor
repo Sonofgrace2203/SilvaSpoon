@@ -1,0 +1,13 @@
+<div class="flex flex-center bd mgr-5 mgb-5 mgt-5">
+    <img src="@Img" alt="" class="wx-04 hx-04 bg-primary-01 pd mgr-3">
+    <div class="pd wx-25">
+        <h4 class="mg-0">@Title</h4>
+        <p class="mg-0 fsz-15">@Desc</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Desc { get; set; } = "";
+}

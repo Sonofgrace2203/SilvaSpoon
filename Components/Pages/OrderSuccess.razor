@@ -1,0 +1,168 @@
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject CartService Cart
+@inject IMealApiService MealApiService
+@inject IContactSettingsApiService ContactSetting
+@inject NavigationManager Nav
+
+
+<div class="wvg-5">
+    <div class="z-5 hf wf scroll" style="position:fixed; top:70px;">
+        <div class="wx-35 bg-card shadow-border-5 pd mahx-5 scroll-y slide-in-top" style="position:absolute; right:50px;">
+
+            <div class="pd shadow-card-10">
+                <div class="flex stack flex-center">
+
+                    <div class="bg-primary-08 pd round mg wx-1 hx-1 flex flex-center">
+                        <i class="mdi mdi-check fsz-35 cl-white"></i>
+                    </div>
+
+                    <h1>Order Placed!</h1>
+
+                    <p class="mg-0 fsz-20">
+                        Thank you for your order.
+                    </p>
+
+                    <p class="fsz-20 text-center">
+                        Your order has been received successfully.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="pd-5 corner-5 bd bd-secondary bg-secondary-01">
+
+                <div class="text-center">
+                    <p class="mg-0 cl-secondary op-5">Order Id</p>
+                    <h2 class="mg-0 cl-secondary">#ORD-@Cart.LastOrderId</h2>
+                </div>
+
+                <hr class="mgt-5 mgb-5 bg-secondary" />
+
+                <div class="text-center">
+                    <p class="mg-0 cl-secondary op-5">Total Paid</p>
+                    <h2 class="mg-0 cl-secondary">₦@(order?.TotalAmount.ToString("N0") ?? "0")</h2>
+                </div>
+
+            </div>
+
+            <div class="stack pd">
+
+                <button class="bg-primary fsz-20 bd-none pd-3 corner-2 mgb-3" @onclick="OpenWhatsApp">
+
+                    <i class="mdi mdi-whatsapp fsz-25"></i>
+
+                    Chat on WhatsApp
+
+                </button>
+
+                <button class="bg-transparent bd fsz-20 pd-3" @onclick="BackToMenu">
+
+                    Back to Menu
+
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="wf bg-black-01" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 7;">
+        <div class="bg-card shadow-border-5 slide-in-left" style="position: absolute; bottom: 0; left: 0; right: 0;">
+
+            <div class="pd shadow-card-10">
+                <div class="flex stack flex-center">
+
+                    <div class="bg-primary-08 pd round mg wx-1 hx-1 flex flex-center">
+                        <i class="mdi mdi-check fsz-35 cl-white"></i>
+                    </div>
+
+                    <h1>Order Placed!</h1>
+
+                    <p class="mg-0 fsz-20">
+                        Thank you for your order.
+                    </p>
+
+                    <p class="fsz-20 text-center">
+                        Your order has been received successfully.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="pd">
+                <div class="pd-5 corner-5 bd bd-secondary bg-secondary-01">
+
+                    <div class="text-center">
+                        <p class="mg-0 cl-secondary op-5">Order Id</p>
+                        <h2 class="mg-0 cl-secondary">#ORD-@Cart.LastOrderId</h2>
+                    </div>
+
+                    <hr class="mgt-5 mgb-5 bg-secondary" />
+
+                    <div class="text-center">
+                        <p class="mg-0 cl-secondary op-5">Total Paid</p>
+                        <h2 class="mg-0 cl-secondary">₦@(order?.TotalAmount.ToString("N0") ?? "0")</h2>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="stack pd">
+
+                <button class="bg-primary fsz-20 bd-none pd-3 corner-2 mgb-3" @onclick="OpenWhatsApp">
+
+                    <i class="mdi mdi-whatsapp fsz-25"></i>
+
+                    Chat on WhatsApp
+
+                </button>
+
+                <button class="bg-transparent bd fsz-20 pd-3" @onclick="BackToMenu">
+
+                    Back to Menu
+
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private decimal TotalPaid = 0;
+
+    private Order? order;
+
+    private ContactSetting contactInfoSetting = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        order = await MealApiService.GetOrderAsync(Cart.LastOrderId);
+
+        if (order != null)
+        {
+            TotalPaid = order.TotalAmount;
+        }
+
+        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+    }
+
+    private void BackToMenu()
+    {
+        Cart.CloseOrderSuccess();
+
+        Nav.NavigateTo("/Menu");
+    }
+
+    private void OpenWhatsApp()
+    {
+        Nav.NavigateTo(uri: ($"https://wa.me/{contactInfoSetting.PhoneNumber}"), true);
+        
+    }
+}

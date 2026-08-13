@@ -1,0 +1,128 @@
+﻿@using silvaspoon.Components.Pages
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using silvaspoon.Services
+@using silvaspoon.Components.Shared
+@inject IBusinessSettingsApiService BusinessSetting
+@inject IImageUrlService ImageUrlService
+@inject BusinessSettingsState BusinessSettingsState
+@implements IDisposable
+
+<div class="scroll-y pd-1 bg-primary admin-nav hf wx-15">
+    <div class="top-row ps-3 navbar navbar-dark">
+        <div class="container-fluid bg-card corner-1 shadow-border-5">
+            <a href="Dashboard" style="text-decoration: none;" class="flex stack align-center">
+                <div class="flex wf">
+                    <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                         alt="@businessInfoSetting.BusinessName" class="wx-15 hx-15 corner-03" />
+                </div>
+                <div class="flex flex-center pd">
+                    <h3 class="cl-secondary fsz-20 mg-0">@businessInfoSetting.BusinessName.ToUpper()</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="" onclick="document.querySelector('.navbar-toggler').click()">
+        <nav class="mgt-10">
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Dashboard"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-home-outline fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt-1" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Admin/Meals"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-medal-outline fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Meal
+                </NavLink>
+            </div>
+
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Admin/Orders"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-pool fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Order(s)
+                </NavLink>
+            </div>
+
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Admin/Recipe"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-pool fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Recipe
+                </NavLink>
+            </div>
+
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Admin/Reviews"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-pool fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Reviews
+                </NavLink>
+            </div>
+
+            <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Settings"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-tools fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Settings
+                </NavLink>
+            </div>
+
+            @* <div class="nav-item pd pdl-0">
+                <NavLink class="pd cl-white fsz-13 fw-bold" style="text-decoration: none;" href="Login"
+                         Match="NavLinkMatch.All">
+                    <i class="mdi mdi-logout fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span> Logout
+                </NavLink>
+            </div> *@
+
+            <div class="nav-item pd pdl-0">
+                <button class="pd cl-white fsz-13 fw-bold bd-none bg-transparent" style="text-decoration: none;"
+                        @onclick="RequestLogout">
+
+                    <i class="mdi mdi-logout fsz-20 mgr-2 cl-white"></i>
+                    <span class="cl-white mgt--1" aria-hidden="true"></span>
+                    Logout
+                </button>
+            </div>
+        </nav>
+    </div>
+</div>
+
+@code {
+    private BusinessSetting businessInfoSetting = new();
+
+    [Parameter] public EventCallback LogoutRequested { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        businessInfoSetting = await BusinessSetting.GetAsync()
+                              ?? new BusinessSetting();
+
+        BusinessSettingsState.Set(businessInfoSetting);
+
+        BusinessSettingsState.OnChange += Refresh;
+    }
+
+    private async Task RequestLogout()
+    {
+        await LogoutRequested.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        BusinessSettingsState.OnChange -= Refresh;
+    }
+
+    private void Refresh()
+    {
+        businessInfoSetting = BusinessSettingsState.Current;
+
+        InvokeAsync(StateHasChanged);
+    }
+}

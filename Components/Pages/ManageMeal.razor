@@ -1,0 +1,304 @@
+@page "/Admin/Meals"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.WebUtilities
+@using silvaspoon.Components.Shared
+@using silvaspoon.Models
+@using silvaspoon.Models.Pagination
+@using silvaspoon.Services
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@inject IMealApiService MealApiService
+@inject IImageUrlService ImageUrlService
+@inject IMealSettingsApiService MealCategoryService
+@inject NavigationManager Nav
+@layout AdminLayout
+
+
+<div class="mgt--10">
+    <div class="flex pdt pdb flex-spacebetween">
+        <h3>Meals</h3>
+        <button class="bg-primary bd-none corner-2 pd flex flex-center button"
+                @onclick='() => Nav.NavigateTo("/Admin/Meals/NewMeal")'>
+            <i class="mdi mdi-plus fsz-20"></i>
+            Add New Meal
+        </button>
+    </div>
+
+    <div class="flex flex-start flow mgb-15">
+        @foreach (var stat in mealStats)
+        {
+            <OrderStat Title="@stat.Category" Num="@stat.Count.ToString()" />
+        }
+    </div>
+
+    <div class="mgb-3 flex flex-spacebetween flow">
+        <div class="mgb-2">
+            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1" @onclick="AllMeals">All</button>
+            @foreach (var category in categories)
+            {
+                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
+                        @onclick="() => FilterByCategory(category.Name)">
+                    @category.Name
+                </button>
+            }
+        </div>
+
+        <div class="flex">
+            <input type="text" placeholder="Search meal..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
+                   @bind="searchedMeal" @onkeydown="HandleSearchKey" />
+
+            <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchMeals">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="wf">
+        <div class="wf hx-5 scroll">
+            <table class="wf shadow-border-5">
+                <thead>
+                    <tr>
+                        <th class="bd pd bg-primary-02">Image</th>
+                        <th class="bd pd bg-primary-02">Name</th>
+                        <th class="bd pd bg-primary-02">Category</th>
+                        <th class="bd pd bg-primary-02">Price</th>
+                        <th class="bd pd bg-primary-02">Status</th>
+                        <th class="bd pd bg-primary-02">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!meals.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="pd text-center">
+                                No meals available.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var meal in meals)
+                        {
+                            <tr>
+                                <td class="bd pd flex flex-center bg-white">
+                                    <img src="@ImageUrlService.GetImageUrl(meal.ImageUrl)"
+                                         class="wx-05 hx-05 bd corner-2 pd-1" />
+                                </td>
+                                <td class="bd pd bg-white">@meal.Name</td>
+                                <td class="bd pd bg-white">@meal.Category</td>
+                                <td class="bd pd bold cl-secondary fsz-17 fw-bold bg-white">₦@meal.Price.ToString("N2")</td>
+                                <td class="bd pd bg-white">
+                                    @if (meal.IsAvailable)
+                                    {
+                                        <div class="flex flex-center">
+                                            <Badge BadgeTitle="Available" BgColor="rgb(0,141,0,0.3)" ClColor="rgb(0,141,0)" />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="flex flex-center">
+                                            <Badge BadgeTitle="Unavailable" BgColor="rgba(220,53,69,.25)"
+                                                   ClColor="rgb(220,53,69)" />
+                                        </div>
+                                    }
+                                </td>
+                                <td class="bd pd bg-white">
+                                    <div class="flex flex-center">
+                                        <i class="mdi mdi-pencil fsz-20 mgr-5 pointer" @onclick="() => EditMeal(meal.Id)"></i>
+                                        <i class="mdi mdi-delete cl-fatal fsz-20 pointer"
+                                           @onclick="() => ConfirmDeleteMeal(meal.Id)"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (mealPage != null && mealPage.TotalItems > 0)
+    {
+        <Pagination CurrentPage="@currentPage" PageSize="@pageSize" PageTotal="@mealPage.TotalItems"
+                    TotalPages="@mealPage.TotalPages" PreviousPage="PreviousPage" NextPage="NextPage" GoToPage="GoToPage" />
+    }
+</div>
+
+@if (confirmMealDelete)
+{
+    <ConfirmDialog Text="Are you sure you want to delete this meal?" ConfirmBtn="Delete" CancelBtn="Cancel"
+                   Confirm="DeleteMeal" Cancel="CancelDeleteMeal" />
+}
+
+
+@code {
+    private string currentFilter = "all";
+    private List<MealStatsDto> mealStats = new();
+    private List<MealCategory> categories = new();
+
+    private bool confirmMealDelete = false;
+    private int mealToDeleteId;
+
+    private List<silvaspoon.Models.Meal> meals = new();
+    private PagedResult<silvaspoon.Models.Meal>? mealPage;
+    private int currentPage = 1;
+    private int pageSize = 10;
+
+    private string _searchedMeal = "";
+
+    private string searchedMeal
+    {
+        get => _searchedMeal;
+        set => _searchedMeal = value;
+    }
+
+    private async Task SearchMeals()
+    {
+        currentPage = 1;
+        await LoadMeals();
+    }
+
+    private async Task HandleSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            currentPage = 1;
+            await LoadMeals();
+        }
+    }
+
+    private async Task AllMeals()
+    {
+        currentFilter = "all";
+        currentPage = 1;
+
+        await LoadMeals();
+    }
+
+    private async Task FilterByCategory(string category)
+    {
+        currentFilter = category;
+        currentPage = 1;
+
+        await LoadMeals();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query)
+            .TryGetValue("filter", out var filter))
+        {
+            currentFilter = filter!;
+        }
+
+        categories = await MealCategoryService.GetAsync()
+                 ?? new List<MealCategory>();
+
+        await LoadMeals();
+        await LoadMealStats();
+    }
+
+    @* private async Task LoadMeals()
+    {
+        var category = currentFilter == "all"
+            ? null
+            : currentFilter;
+
+        mealPage = await MealApiService.GetMealsAsync(
+            currentPage,
+            pageSize,
+            searchedMeal,
+            category);
+
+        meals = mealPage.Items;
+    } *@
+
+    private async Task LoadMeals()
+    {
+        string? category = null;
+        bool? isAvailable = null;
+
+        if (currentFilter == "available")
+        {
+            isAvailable = true;
+        }
+        else if (currentFilter == "unavailable")
+        {
+            isAvailable = false;
+        }
+        else if (currentFilter != "all")
+        {
+            category = currentFilter;
+        }
+
+        mealPage = await MealApiService.GetMealsAsync(
+            currentPage,
+            pageSize,
+            searchedMeal,
+            category,
+            isAvailable);
+
+        meals = mealPage.Items;
+    }
+
+    private async Task LoadMealStats()
+    {
+        mealStats = await MealApiService.GetMealStatsAsync();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+
+            await LoadMeals();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (mealPage != null && currentPage < mealPage.TotalPages)
+        {
+            currentPage++;
+
+            await LoadMeals();
+        }
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+
+        await LoadMeals();
+    }
+
+    private void EditMeal(int id)
+    {
+        Nav.NavigateTo($"/Admin/Meals/Edit/{id}");
+    }
+
+    private void ConfirmDeleteMeal(int id)
+    {
+        mealToDeleteId = id;
+        confirmMealDelete = true;
+    }
+
+    private void CancelDeleteMeal()
+    {
+        confirmMealDelete = false;
+    }
+
+    private async Task DeleteMeal()
+    {
+        confirmMealDelete = false;
+
+        await MealApiService.DeleteMealAsync(mealToDeleteId);
+
+        await LoadMeals();
+        await LoadMealStats();
+    }
+}

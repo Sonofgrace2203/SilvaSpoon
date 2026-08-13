@@ -1,0 +1,26 @@
+<div class="pd corner-3 wx-2 mgb-10 mgr-10 flex flex-center stack wvg-5">
+    <div class="flex flex-center">
+        <img src="@Img" alt="" class="wx-05 hx-05 round bd pd">
+    </div>
+    <div class="pd text-center flex flex-center stack">
+        <h5 class="mg-0 pdb-5 fsz-17">@MealTitle</h5>
+        <p class="mg-0 op-7">@MealDesc</p>
+    </div>
+</div>
+
+<div class="mgr-3 corner-3 mgb-10 flex flex-center stack wvl-5">
+    <div class="flex flex-center">
+        <img src="@Img" alt="" class="wx-05 hx-05 round bd pd">
+    </div>
+    <div class="pd text-center flex flex-center stack">
+        <h5 class="mg-0 pdb-5 fsz-15">@MealTitle</h5>
+        <p class="mg-0 op-7 fsz-15">@MealDesc</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string MealPrice { get; set; } = "";
+    [Parameter] public string MealDesc { get; set; } = "";
+}

@@ -1,0 +1,87 @@
+@using silvaspoon.Components.Pages
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+
+<div class="bd pd corner-3 wx-3 mgb-10 mgr-10 wvg-5 shadow-border-3">
+    <div class="meal-image @(IsAvailable ? "" : "unavailable")">
+        <img src="@Img" alt="@AltTitle" class="wf hx-25 corner-3">
+    </div>
+    <div class="pd">
+        <h5 class="mg-0 pdb-2 fsz-17">@MealTitle</h5>
+        <h3 class="mg-0 pdb-2 cl-secondary">@MealPrice</h3>
+        <p class="mg-0 op-7">@MealDesc</p>
+
+        @if (IsAvailable)
+        {
+            <Badge BadgeTitle="@BadgeTitle" BgColor="@BgColor" ClColor="@ClColor" />
+        }
+        else
+        {
+            <Badge BadgeTitle="Out of Stock" BgColor="rgba(220,38,38,.15)" ClColor="#dc2626" />
+        }
+        <button class="pd bd-none corner-2 wf
+            @(IsAvailable
+                        ? (IsAdded ? "bg-primary" : "bg-secondary")
+                        : "bg-disabled")" @onclick="AddToCart" disabled="@(!IsAvailable || IsAdded)">
+
+            @(IsAvailable
+                ? (IsAdded ? "Meal Added to Cart" : "Add to Cart")
+                : "Unavailable")
+        </button>
+    </div>
+</div>
+
+<div class="bd pd-1 corner-3 mgb-10 mgr-5 wvl-5 shadow-border-3">
+    <div class="meal-image @(IsAvailable ? "" : "unavailable")">
+        <img src="@Img" alt="@AltTitle" class="wf hx-1 corner-3">
+    </div>
+    <div class="pd-1">
+        <h5 class="mg-0 pdb-2 fsz-15">@MealTitle</h5>
+        <h3 class="mg-0 pdb-2 cl-secondary">@MealPrice</h3>
+        <p class="mg-0 op-7 fsz-13">@MealDesc</p>
+
+        @if (IsAvailable)
+        {
+            <Badge BadgeTitle="@BadgeTitle" BgColor="@BgColor" ClColor="@ClColor" />
+        }
+        else
+        {
+            <Badge BadgeTitle="Out of Stock" BgColor="rgba(220,38,38,.15)" ClColor="#dc2626" />
+        }
+        <button class="pd bd-none corner-2 wf
+            @(IsAvailable
+                    ? (IsAdded ? "bg-primary" : "bg-secondary")
+                    : "bg-disabled")" @onclick="AddToCart" disabled="@(!IsAvailable || IsAdded)">
+
+            @(IsAvailable
+                ? (IsAdded ? "Meal Added to Cart" : "Add to Cart")
+                : "Unavailable")
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string MealTitle { get; set; } = "";
+    [Parameter] public string AltTitle { get; set; } = "";
+    [Parameter] public string MealPrice { get; set; } = "";
+    [Parameter] public string MealDesc { get; set; } = "";
+    [Parameter] public string BadgeTitle { get; set; } = "";
+    [Parameter] public string BgColor { get; set; } = "";
+    [Parameter] public string ClColor { get; set; } = "";
+    [Parameter] public EventCallback AddToCart { get; set; }
+    [Parameter] public bool IsAvailable { get; set; } = true;
+    [Parameter] public bool IsAdded { get; set; }
+
+    private string ButtonClass =>
+    IsAvailable
+        ? "bg-secondary pd wf corner-2 bd-none flex flex-center button"
+        : "bg-disabled pd wf corner-2 bd-none flex flex-center";
+
+    public async Task HandleClick()
+    {
+        Console.WriteLine("Button Clicked!");
+
+        await AddToCart.InvokeAsync();
+    }
+}

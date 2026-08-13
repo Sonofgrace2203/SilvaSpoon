@@ -1,0 +1,122 @@
+@using silvaspoon.Models.Settings
+@using silvaspoon.Services.Settings
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IWhatsAppSettingsApiService WhatsAppService
+
+<div>
+    <div class="flex mgb-10">
+        <h4 class="mg-0 pdt-1">WhatsApp Settings</h4>
+    </div>
+
+    <div class="flex">
+        <div class="mgb-10 mgr-20 flex flex-start flow">
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">WhatsApp Number:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.Number</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Default Greeting Message:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.GreetingMessage</p>
+                </div>
+            </div>
+            <div class="mgr mgb bg-card pd shadow-border-5">
+                <div class="flex mgb-3">
+                    <i class="mdi mdi-marker fsz-15 corner-3 mgr-5"></i>
+                    <h4 class="mg-0">Default Thank You Message:</h4>
+                </div>
+                <div>
+                    <p class="">@originalSetting.ThankYouMessage</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-10">
+        <button disabled="@(isForm)" class="pd bd-none bg-primary corner-3 fsz-17" @onclick="IsForm">Edit WhatsApp Info</button>
+    </div>
+
+    <div style="display: @(isForm ? "block" : "none");">
+    <EditForm Model="setting" OnValidSubmit="HandleSaveChanges">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row responsive col-3">
+            <div class="stack mgb-10 mgr-5 miwx-25">
+                <label for="name" class="mgb-1 fsz-15">WhatsApp Number</label>
+                <InputText class="pd bd corner-2" @bind-Value="setting.Number" />
+            </div>
+        </div>
+
+        <div class="stack mgb-10 mgr-5">
+            <label for="description" class="mgb-1 fsz-15">Default Greeting Message</label>
+            <InputTextArea class="corner-2 hx-1 bd pd" @bind-Value="setting.GreetingMessage" />
+        </div>
+
+        <div class="stack mgb-10 mgr-5">
+            <label for="description" class="mgb-1 fsz-15">Default Thank you Message</label>
+            <InputTextArea class="corner-2 hx-1 bd pd" @bind-Value="setting.ThankYouMessage" />
+        </div>
+
+        <div class="">
+            <button class="pd corner-2 bd-none bg-primary wf button fsz-16">Save Changes</button>
+        </div>
+    </EditForm>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public EventCallback SaveChanges { get; set; }
+
+    private WhatsAppSetting setting = new();   
+    private WhatsAppSetting originalSetting = new();
+
+    private bool isForm = false;
+
+    private void IsForm()
+    {
+        isForm = !isForm;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        setting = await WhatsAppService.GetAsync() ?? new WhatsAppSetting();
+
+        originalSetting = Clone(setting);
+    }
+
+    private async Task HandleSaveChanges()
+    {
+        isForm = !isForm;
+        await SaveChanges.InvokeAsync();
+    }
+
+    public async Task SaveSettings()
+    {
+        setting = await WhatsAppService.UpdateAsync(setting) ?? setting;
+
+        originalSetting = Clone(setting);
+
+        StateHasChanged();
+    }
+
+    private WhatsAppSetting Clone(WhatsAppSetting source)
+    {
+        return new WhatsAppSetting
+        {
+            Id = source.Id,
+            Number = source.Number,
+            GreetingMessage = source.GreetingMessage,
+            ThankYouMessage = source.ThankYouMessage
+        };
+    }
+}

@@ -1,0 +1,42 @@
+<div class="wvg-5">
+    <div class="bd corner-3 pd-5 wx-2 bg-card shadow-border-2 mgb-2 mgr-2 pos-rel cardani stat-card pointer"
+         @onclick="HandleClick">
+        <div class="flex mgb-10">
+            <i class="mdi mdi-package fsz-20 cl-secondary mgr-5"></i>
+            <p class="mg-0 pdt-1">@Text1</p>
+        </div>
+
+        <div class="flex flex-spacebetween">
+            <h3 class="fsz-25 mg-0">@NumCount</h3>
+        </div>
+        <img src="@Img" alt="" class="hx-03 wx-03 corner-2" style="position: absolute; bottom: 10px; right: 5px;">
+    </div>
+</div>
+
+<div class="wvl-5">
+    <div class="bd corner-3 pd wx-13 bg-card shadow-border-2 mgb-2 mgr-2 pos-rel cardani stat-card pointer"
+         @onclick="HandleClick">
+        <div class="flex mgb-10">
+            <i class="mdi mdi-package fsz-20 cl-secondary mgr-5"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Text1</p>
+        </div>
+
+        <div class="flex flex-spacebetween">
+            <h3 class="fsz-20 mg-0">@NumCount</h3>
+        </div>
+        <img src="@Img" alt="" class="hx-03 wx-03 corner-2" style="position: absolute; bottom: 10px; right: 5px;">
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Img { get; set; } = "";
+    [Parameter] public string Text1 { get; set; } = "";
+    [Parameter] public string NumCount { get; set; } = "";
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}
