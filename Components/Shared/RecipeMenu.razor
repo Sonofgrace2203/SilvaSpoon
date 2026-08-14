@@ -184,7 +184,7 @@
                 <div class="flex flex-start scroll">
                     @foreach (var relatedRecipe in relatedRecipes)
                     {
-                        <NavLink href="@($"/Recipe/Content/{relatedRecipe.Id}")" style="text-decoration: none;"
+                        <NavLink href="@($"Recipe/Content/{relatedRecipe.Id}")" style="text-decoration: none;"
                                  class="cl-black">
 
                             <RecipeCard MealTitle="@relatedRecipe.Title" MealDesc="@relatedRecipe.Description"
