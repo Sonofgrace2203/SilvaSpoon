@@ -216,43 +216,6 @@
         await SaveChanges.InvokeAsync();
     }
 
-    @* public async Task SaveSettings()
-    {
-        // Update the other settings
-        savedSetting.DeliveryFee = editingSetting.DeliveryFee;
-        savedSetting.FreeDeliveryAbove = editingSetting.FreeDeliveryAbove;
-        savedSetting.EstimatedDeliveryTime = editingSetting.EstimatedDeliveryTime;
-
-        // Add the new areas
-        foreach (var area in editingSetting.Areas)
-        {
-            if (!savedSetting.Areas.Any(a =>
-                a.Name.Equals(area.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                savedSetting.Areas.Add(new DeliveryArea
-                {
-                    Name = area.Name,
-                    Fee = area.Fee
-                });
-            }
-        }
-
-        // Save the merged result
-        savedSetting = await DeliveryService.UpdateAsync(savedSetting)
-                        ?? savedSetting;
-
-        // Clear only the form list
-        editingSetting.Areas.Clear();
-
-        editingSetting.DeliveryFee = savedSetting.DeliveryFee;
-        editingSetting.FreeDeliveryAbove = savedSetting.FreeDeliveryAbove;
-        editingSetting.EstimatedDeliveryTime = savedSetting.EstimatedDeliveryTime;
-
-        newArea = "";
-
-        StateHasChanged();
-    } *@
-
     public async Task SaveSettings()
     {
         // Update general delivery settings

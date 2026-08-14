@@ -20,15 +20,15 @@
         <h4 class="pd bg-secondary-02">Meals Statistics</h4>
         <div class="flex flex-start flow mgb-5">
             <StatCard Img="icons/tmeals.svg" Text1="Total Meals" NumCount="@stats.TotalMeals.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Meals?filter=all"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Meals?filter=all"))" />
             <StatCard Img="icons/cooking.svg" Text1="Available Meals" NumCount="@stats.AvailableMeals.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Meals?filter=available"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Meals?filter=available"))" />
             <StatCard Img="icons/stock.svg" Text1="Out of Stock" NumCount="@stats.UnavailableMeals.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Meals?filter=unavailable"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Meals?filter=unavailable"))" />
             <StatCard Img="icons/orders.svg" Text1="Total Orders" NumCount="@stats.TotalOrders.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=all"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=all"))" />
             <StatCard Img="icons/customer.svg" Text1="Customers" NumCount="@stats.TotalCustomers.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders"))" />
         </div>
     </div>
 
@@ -36,15 +36,15 @@
         <h4 class="pd bg-secondary-02">Orders Statistics</h4>
         <div class="flex flex-start flow mgb-10">
             <StatCard Img="icons/orders.svg" Text1="Pending" NumCount="@stats.PendingOrders.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=pending"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=pending"))" />
             <StatCard Img="icons/cooking.svg" Text1="Preparing" NumCount="@stats.PreparingOrders.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=preparing"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=preparing"))" />
             <StatCard Img="icons/check.svg" Text1="Delivered" NumCount="@stats.DeliveredOrders.ToString()"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=delivered"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=delivered"))" />
             <StatCard Img="icons/revenue.svg" Text1="Pending Value" NumCount="@($"₦{stats.PendingValue:N0}")"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=pending"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=pending"))" />
             <StatCard Img="icons/revenue.svg" Text1="Total Revenue" NumCount="@($"₦{stats.Revenue:N0}")"
-                      OnClick="@(() => Nav.NavigateTo("/Admin/Orders?status=delivered"))" />
+                      OnClick="@(() => Nav.NavigateTo("Admin/Orders?status=delivered"))" />
         </div>
     </div>
 
@@ -74,7 +74,7 @@
                 <div class="flex flex-spacebetween flex-center">
                     <h3 class="pd">Recent Orders</h3>
                     <button class="pd bg-secondary bd-none corner-2 button"
-                            @onclick="@(() => Nav.NavigateTo("/Admin/Orders"))">View all</button>
+                            @onclick="@(() => Nav.NavigateTo("Admin/Orders"))">View all</button>
                 </div>
                 <div class="corner-3 bd shadow-border-2 scroll">
                     <table class="wf pd shadow-border-5">

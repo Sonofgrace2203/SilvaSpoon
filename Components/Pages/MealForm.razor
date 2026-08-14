@@ -15,7 +15,7 @@
 <div class="">
     <div class="flex mgb-10">
         <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd"
-           @onclick='() => Nav.NavigateTo("/Admin/Meals")'></i>
+           @onclick='() => Nav.NavigateTo("Admin/Meals")'></i>
         <div class="mgt-3">
             <h3 class="mg-0">Add New Meal</h3>
         </div>
@@ -77,7 +77,7 @@
 
         <div class="pd flex flex-end">
             <button class="pd corner-2 bd-none mgr-5 button shadow-border-3 bd"
-                    @onclick='() => Nav.NavigateTo("/Admin/Meals")'>Cancel</button>
+                    @onclick='() => Nav.NavigateTo("Admin/Meals")'>Cancel</button>
             <button type="submit" disabled="@isSaving"
                     class="pd corner-2 bd-none bg-primary mgr-5 button shadow-border-3 bd">
                 @(isSaving ? "Saving..." : "Add Meal")
@@ -103,7 +103,7 @@
 
         await MealApiService.CreateMealAsync(meal);
 
-        Nav.NavigateTo("/Admin/Meals");
+        Nav.NavigateTo("Admin/Meals");
     }
 
     private async Task UploadImage(InputFileChangeEventArgs e)

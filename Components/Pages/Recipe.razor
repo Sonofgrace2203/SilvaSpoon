@@ -24,31 +24,9 @@
             <p class="mg-0 fsz-30">Discover easy and tasty recipes you can cook at home. From local favourites to modern
                 twists.</p>
             </div>
-
-            @* <div class="">
-                <input placeholder="Search by Order ID, Customer or Phone..."
-                       class="pd-3 bg-primary-01 corner-1 wx-3 bd-none bg-white mgb-2" />
-
-                <button class="pd bg-primary bd-none corner-1 mgr-2 wx-1">
-                    <i class="mdi mdi-magnify"></i>
-                </button>
-            </div> *@
         </div>
 
         <div class="pd">
-            @* <div class="flex flex-spacebetween flow">
-                <div class="flex flex-center flow mgb-5">
-                    <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1">All</button>
-                    @foreach (var category in categories)
-                    {
-                        <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
-                                @onclick="() => FilterByCategory(category.Name)">
-                            @category.Name
-                        </button>
-                    }
-                </div>
-            </div> *@
-
             <div class="mgb-5">
                 <div class="pdt pdb mgb">
                     <h3 class="mg-0">Featured Recipe</h3>
@@ -134,31 +112,9 @@
                     <p class="mg-0 fsz-20">Discover easy and tasty recipes you can cook at home. From local favourites to modern
                         twists.</p>
                     </div>
-
-                    @* <div class="">
-                        <input placeholder="Search by Order ID, Customer or Phone..."
-                               class="pd-3 bg-primary-01 corner-1 wx-3 bd-none bg-white mgb-2" />
-
-                        <button class="pd bg-primary bd-none corner-1 mgr-2 wx-1">
-                            <i class="mdi mdi-magnify"></i>
-                        </button>
-                    </div> *@
                 </div>
 
                 <div class="pd">
-                    @* <div class="flex flex-spacebetween flow">
-                        <div class="flex flex-center flow mgb-5">
-                            <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1">All</button>
-                            @foreach (var category in categories)
-                            {
-                                <button class="pd bg-primary-01 bd setting-btn mgb-1 mgr-1"
-                                        @onclick="() => FilterByCategory(category.Name)">
-                                    @category.Name
-                                </button>
-                            }
-                        </div>
-                    </div> *@
-
                     <div class="mgb-5">
                         <div class="pdt pdb mgb">
                             <h3 class="mg-0">Featured Recipe</h3>
@@ -257,9 +213,6 @@
 
     private async Task FilterByCategory(string category)
     {
-        @* currentFilter = category;
-        currentPage = 1; *@
-
         await LoadRecipes();
     }
 

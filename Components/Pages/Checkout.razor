@@ -4,8 +4,6 @@
 @inject IDeliverySettingsApiService DeliverySettingsApiService
 @inject IMealApiService MealApiService
 @inject CartService Cart
-@inject NavigationManager Nav
-
 @implements IDisposable
 
 
@@ -59,23 +57,6 @@
                         <hr />
 
                         <!-- Order Summary -->
-                        @* <div>
-                            <div class="flex flex-spacebetween mgb-5">
-                                <p class="mg-0">Subtotal</p>
-                                <h4 class="mg-0">₦@Cart.Total.ToString("N0")</h4>
-                            </div>
-
-                            <div class="flex flex-spacebetween mgb-5">
-                                <p class="mg-0 op-7">@Cart.TotalItems Item(s)</p>
-                            </div>
-
-                            <div class="flex flex-spacebetween mgb-15 bg-secondary-01 cl-secondary pd">
-                                <h3 class="mg-0">Total</h3>
-                                <h3 class="mg-0 cl-secondary">₦@Cart.Total.ToString("N0")</h3>
-                            </div>
-                        </div> *@
-
-
                         <div>
                             <div class="flex flex-spacebetween mgb-5">
                                 <p class="mg-0">Subtotal</p>

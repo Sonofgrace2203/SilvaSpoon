@@ -39,7 +39,7 @@
                 <p class="text-center">@Review.CreatedAt.ToString("dd MMM yyyy")</p>
                 <div class="text-center">
                     <button class="mdi mdi-pencil bg-primary-01 cl-primary fsz-20 pd bd mgr-3"
-                            @onclick='() => Nav.NavigateTo($"/Admin/Reviews/Edit/{Review.Id}")'>
+                            @onclick='() => Nav.NavigateTo($"Admin/Reviews/Edit/{Review.Id}")'>
                     </button>
                     <button class="mdi mdi-delete bg-secondary-01 cl-secondary fsz-20 pd bd"
                             @onclick="() => OnDelete.InvokeAsync(Review.Id)"></button>

@@ -215,7 +215,7 @@
 
         if (existingRecipe == null)
         {
-            Nav.NavigateTo("/Admin/Recipe");
+            Nav.NavigateTo("Admin/Recipe");
             return;
         }
 
@@ -307,7 +307,7 @@
 
             if (result != null)
             {
-                Nav.NavigateTo("/Admin/Recipe");
+                Nav.NavigateTo("Admin/Recipe");
             }
         }
         finally
@@ -318,6 +318,6 @@
 
     private void Cancel()
     {
-        Nav.NavigateTo("/Admin/Recipe");
+        Nav.NavigateTo("Admin/Recipe");
     }
 }

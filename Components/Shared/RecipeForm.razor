@@ -150,7 +150,6 @@
         {
             <img src="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" class="wx-25 hx-05 corner-3 mgt-3" />
         }
-
     </div>
 
     <!-- Status -->
@@ -279,7 +278,7 @@
 
             if (result != null)
             {
-                Nav.NavigateTo("/Admin/Recipe");
+                Nav.NavigateTo("Admin/Recipe");
             }
         }
         finally
@@ -290,6 +289,6 @@
 
     private void Cancel()
     {
-        Nav.NavigateTo("/Admin/Recipe");
+        Nav.NavigateTo("Admin/Recipe");
     }
 }

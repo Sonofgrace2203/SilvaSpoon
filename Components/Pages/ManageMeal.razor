@@ -19,7 +19,7 @@
     <div class="flex pdt pdb flex-spacebetween">
         <h3>Meals</h3>
         <button class="bg-primary bd-none corner-2 pd flex flex-center button"
-                @onclick='() => Nav.NavigateTo("/Admin/Meals/NewMeal")'>
+                @onclick='() => Nav.NavigateTo("Admin/Meals/NewMeal")'>
             <i class="mdi mdi-plus fsz-20"></i>
             Add New Meal
         </button>
@@ -201,21 +201,6 @@
         await LoadMealStats();
     }
 
-    @* private async Task LoadMeals()
-    {
-        var category = currentFilter == "all"
-            ? null
-            : currentFilter;
-
-        mealPage = await MealApiService.GetMealsAsync(
-            currentPage,
-            pageSize,
-            searchedMeal,
-            category);
-
-        meals = mealPage.Items;
-    } *@
-
     private async Task LoadMeals()
     {
         string? category = null;
@@ -278,7 +263,7 @@
 
     private void EditMeal(int id)
     {
-        Nav.NavigateTo($"/Admin/Meals/Edit/{id}");
+        Nav.NavigateTo($"Admin/Meals/Edit/{id}");
     }
 
     private void ConfirmDeleteMeal(int id)

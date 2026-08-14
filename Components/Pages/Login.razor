@@ -47,12 +47,6 @@
                 <ValidationMessage For="@(() => loginModel.Password)" />
             </div>
 
-            @* <div class="pd">
-                <p class="text-right mg-0 fsz-13 cl-secondary button">
-                    Forget password?
-                </p>
-            </div> *@
-
             <div class="pd button">
                 <button type="submit" class="pd wf bg-primary corner-2 bd-none fsz-17" disabled="@IsLoading">
 
@@ -113,15 +107,8 @@
                 <ValidationMessage For="@(() => loginModel.Password)" />
             </div>
 
-            @* <div class="pd">
-                <p class="text-right mg-0 fsz-13 cl-secondary button">
-                    Forget password?
-                </p>
-            </div> *@
-
             <div class="pd button">
                 <button type="submit" class="pd wf bg-primary corner-2 bd-none fsz-17" disabled="@IsLoading">
-
                     @(IsLoading ? "Signing in..." : "Sign in")
                 </button>
             </div>

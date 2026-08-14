@@ -94,12 +94,6 @@
         {
             @if (meal.IsAvailable)
             {
-                @* <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                          AltTitle="@meal.Name" MealDesc="@meal.Description"
-                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
-                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
-                          IsAvailable="@meal.IsAvailable" /> *@
-
                 <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
                           AltTitle="@meal.Name" MealDesc="@meal.Description"
                           BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
@@ -197,13 +191,6 @@
     {
         currentFilter = category;
     }
-
-    @* private void AddToCart(Meal meal)
-    {
-        Cart.AddMeal(meal);
-
-        StateHasChanged();
-    } *@
 
     private async Task AddToCart(Meal meal)
     {

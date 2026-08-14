@@ -188,9 +188,9 @@
         await LoadOrders();
 
         if (status == "all")
-            Nav.NavigateTo("/Admin/Orders", false);
+            Nav.NavigateTo("Admin/Orders", false);
         else
-            Nav.NavigateTo($"/Admin/Orders?status={status}", false);
+            Nav.NavigateTo($"Admin/Orders?status={status}", false);
     }
 
     private string GetStatusColor(string status)

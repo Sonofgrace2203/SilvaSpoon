@@ -15,7 +15,7 @@
             <h3 class="mgb-0">Customer Reviews</h3>
         </div>
         <button class="bg-primary bd-none corner-2 pd mgt-3 flex flex-center button"
-                @onclick='() => Nav.NavigateTo("/Admin/Reviews/NewReview")'>
+                @onclick='() => Nav.NavigateTo("Admin/Reviews/NewReview")'>
             <i class="mdi mdi-plus fsz-20"></i>
             Add New Review
         </button>
@@ -154,7 +154,7 @@
 
     private void EditReview(int id)
     {
-        Nav.NavigateTo($"/Admin/Reviews/Edit/{id}");
+        Nav.NavigateTo($"Admin/Reviews/Edit/{id}");
     }
 
     private void ConfirmDeleteReview(int id)

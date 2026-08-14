@@ -13,7 +13,7 @@
 <div>
     <div class="flex mgb-10">
         <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd pointer"
-           @onclick='() => Nav.NavigateTo("/Admin/Reviews")'></i>
+           @onclick='() => Nav.NavigateTo("Admin/Reviews")'></i>
         <div class="mgt-3">
             <h3 class="mg-0">Add New Review</h3>
         </div>
@@ -68,7 +68,7 @@
 
         <div class="pd flex flex-end">
             <button type="button" class="pd corner-2 bd-none mgr-5 button shadow-border-3 bd"
-                    @onclick='() => Nav.NavigateTo("/Admin/Reviews")'>Cancel</button>
+                    @onclick='() => Nav.NavigateTo("Admin/Reviews")'>Cancel</button>
 
             <button type="submit" disabled="@isSaving" class="pd corner-2 bd-none bg-primary">
                 @(isSaving ? "Saving..." : "Update Review")
@@ -88,7 +88,7 @@
 
         if (existing is null)
         {
-            Nav.NavigateTo("/Admin/Reviews");
+            Nav.NavigateTo("Admin/Reviews");
             return;
         }
 
@@ -101,7 +101,7 @@
 
         await ReviewApiService.UpdateReviewAsync(Id, review);
 
-        Nav.NavigateTo("/Admin/Reviews");
+        Nav.NavigateTo("Admin/Reviews");
     }
 
     private async Task UploadImage(InputFileChangeEventArgs e)

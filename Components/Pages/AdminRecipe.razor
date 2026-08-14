@@ -20,7 +20,7 @@
     <div class="flex pdt pdb flex-spacebetween">
         <h3>Recipe</h3>
         <button class="bg-primary bd-none corner-2 pd flex flex-center button"
-                @onclick='() => Nav.NavigateTo("/Admin/Recipe/NewRecipe")'>
+                @onclick='() => Nav.NavigateTo("Admin/Recipe/NewRecipe")'>
             <i class="mdi mdi-plus fsz-20"></i>
             Add New Recipe
         </button>
@@ -283,7 +283,6 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading recipes: {ex}");
             recipes = new List<silvaspoon.Models.Recipe>();
         }
     }
@@ -301,7 +300,7 @@
 
     private void EditRecipe(int recipeId)
     {
-        Nav.NavigateTo($"/Admin/Recipe/Edit/{recipeId}");
+        Nav.NavigateTo($"Admin/Recipe/Edit/{recipeId}");
     }
 
     private void ConfirmDeleteRecipe(int id)
@@ -314,18 +313,6 @@
     {
         confirmRecipeDelete = false;
     }
-
-    @* private async Task DeleteRecipe()
-    {
-        confirmRecipeDelete = false;
-
-        var deleted = await RecipeApiService.DeleteRecipeAsync(recipeToDeleteId);
-
-        if (deleted)
-        {
-            await LoadRecipes();
-        }
-    } *@
 
     private async Task DeleteRecipe()
     {
