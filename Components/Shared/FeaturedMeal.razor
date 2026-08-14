@@ -17,8 +17,16 @@
                 {
                     @if (meal.IsAvailable)
                     {
-                        <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                              MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description" AltTitle="@meal.Name" />
+                        @if (isLoading)
+                        {
+                            <LoadingSpinner />
+                        }
+                        else
+                        {
+                            <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
+                                      MealTitle="@meal.Name" MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description"
+                                      AltTitle="@meal.Name" />
+                        }
                     }
                 }
             </div>
@@ -46,8 +54,16 @@
             {
                 @if (meal.IsAvailable)
                 {
-                    <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                              MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description" AltTitle="@meal.Name" />
+                    @if (isLoading)
+                        {
+                            <LoadingSpinner />
+                        }
+                        else
+                        {
+                            <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
+                                      MealTitle="@meal.Name" MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description"
+                                      AltTitle="@meal.Name" />
+                        }
                 }
             }
         </div>
@@ -60,6 +76,7 @@
 
 @code {
     private List<Meal> meals = new();
+    private bool isLoading;
 
     private void GoToMenu()
     {
@@ -68,7 +85,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         meals = await MealApiService.GetMealsAsync();
+        isLoading = false;
     }
 
     private IEnumerable<Meal> filteredMeals => meals.OrderBy(x => Guid.NewGuid()).Take(6);
