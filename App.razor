@@ -9,7 +9,6 @@
     </Router>
 </CascadingAuthenticationState> *@
 
-
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.JSInterop
 @implements IAsyncDisposable
@@ -18,13 +17,13 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Components.Pages.NotFound)">
         <Found Context="routeData">
-            <AuthorizeRouteView 
-                RouteData="@routeData" 
+            <AuthorizeRouteView
+                RouteData="@routeData"
                 DefaultLayout="@typeof(MainLayout)"
                 @key="refreshKey" />
 
-            <FocusOnNavigate 
-                RouteData="@routeData" 
+            <FocusOnNavigate
+                RouteData="@routeData"
                 Selector="h1" />
         </Found>
     </Router>
@@ -41,6 +40,14 @@
         if (!firstRender)
             return;
 
+        var isCapacitor = await JS.InvokeAsync<bool>(
+            "eval",
+            "window.Capacitor !== undefined"
+        );
+
+        if (!isCapacitor)
+            return;
+
         dotNetReference = DotNetObjectReference.Create(this);
 
         await JS.InvokeVoidAsync(
@@ -53,13 +60,13 @@
     {
         refreshKey = Guid.NewGuid();
 
-        InvokeAsync(StateHasChanged);
-
-        return Task.CompletedTask;
+        return InvokeAsync(StateHasChanged);
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         dotNetReference?.Dispose();
+
+        return ValueTask.CompletedTask;
     }
 }
