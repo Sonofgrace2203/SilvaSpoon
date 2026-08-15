@@ -63,6 +63,19 @@
 
     </div>
 
+    <script>
+        (function () {
+            const navigationEntry = performance.getEntriesByType("navigation")[0];
+
+            if (navigationEntry && navigationEntry.type === "reload") {
+                document.documentElement.classList.add("page-reloading");
+            }
+        })();
+    </script>
+
+    <script src="js/app-refresh.js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+
     <script src="js/app-refresh.js"></script>
 
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>

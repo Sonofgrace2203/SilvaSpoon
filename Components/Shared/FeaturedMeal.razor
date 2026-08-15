@@ -14,7 +14,9 @@
         <div class="pd-5 flex scroll flex-start">
             @if (isLoading)
             {
-                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                <div class="flex flex-center">
+                    <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                </div>
             }
             else
             {
@@ -52,7 +54,9 @@
         <div class="flex">
             @if (isLoading)
             {
-                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                <div class="flex flex-center">
+                        <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                    </div>
             }
             else
             {
