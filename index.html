@@ -8,7 +8,7 @@
 
     <base href="/SilvaSpoon/" />
 
-    <link href="_framework/dotnet.3j2timchsd.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-DxwDcWf2O7wEWfdXkhIQA8vRfGIUT0mO5ukI/rwW5Z8=" />
+    <link href="_framework/dotnet.pgigg9v0kk.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-eYUM0uTjDzZsoUEVhpijdx0dUU9WX4VRQRTfZ7QVaVM=" />
 
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
@@ -23,18 +23,18 @@
     <script type="importmap">{
   "imports": {
     "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.3j2timchsd.js",
     "./_framework/dotnet.native.js": "./_framework/dotnet.native.vzj2a6aakt.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.pgigg9v0kk.js",
     "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.zbexyp8zrs.js"
   },
   "scopes": {},
   "integrity": {
     "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
     "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/dotnet.3j2timchsd.js": "sha256-DxwDcWf2O7wEWfdXkhIQA8vRfGIUT0mO5ukI/rwW5Z8=",
-    "./_framework/dotnet.js": "sha256-DxwDcWf2O7wEWfdXkhIQA8vRfGIUT0mO5ukI/rwW5Z8=",
+    "./_framework/dotnet.js": "sha256-eYUM0uTjDzZsoUEVhpijdx0dUU9WX4VRQRTfZ7QVaVM=",
     "./_framework/dotnet.native.js": "sha256-RezASHv+dbqV50cFnld76YiLhk4B+BjMAKs/euUdNyE=",
     "./_framework/dotnet.native.vzj2a6aakt.js": "sha256-RezASHv+dbqV50cFnld76YiLhk4B+BjMAKs/euUdNyE=",
+    "./_framework/dotnet.pgigg9v0kk.js": "sha256-eYUM0uTjDzZsoUEVhpijdx0dUU9WX4VRQRTfZ7QVaVM=",
     "./_framework/dotnet.runtime.js": "sha256-MZMguyke9CroSQl+L/SHIGFkPTD+LtYGXkXjAvwWx40=",
     "./_framework/dotnet.runtime.zbexyp8zrs.js": "sha256-MZMguyke9CroSQl+L/SHIGFkPTD+LtYGXkXjAvwWx40="
   }
@@ -80,6 +80,19 @@
         </span>
 
     </div>
+
+    <script>
+        (function () {
+            const navigationEntry = performance.getEntriesByType("navigation")[0];
+
+            if (navigationEntry && navigationEntry.type === "reload") {
+                document.documentElement.classList.add("page-reloading");
+            }
+        })();
+    </script>
+
+    <script src="js/app-refresh.js"></script>
+    <script src="_framework/blazor.webassembly.66stpp682q.js"></script>
 
     <script src="js/app-refresh.js"></script>
 
