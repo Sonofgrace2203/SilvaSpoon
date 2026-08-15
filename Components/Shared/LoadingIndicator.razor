@@ -1,0 +1,16 @@
+<div class="loading-indicator @Class">
+    <div class="loading-indicator-spinner"></div>
+
+    @if (!string.IsNullOrWhiteSpace(Message))
+    {
+        <span>@Message</span>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "Loading...";
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+}

@@ -15,19 +15,22 @@
     <div class="flex flex-start">
         <div class="pd-5 flex scroll flex-start">
             <div class="flex">
-                @foreach (var recipe in filteredRecipes)
+                @if (isLoading)
                 {
-                    @if (isLoading)
-                        {
-                            <LoadingSpinner />
-                        }
-                        else
+                    <LoadingIndicator Message="Loading Recipes..." Class="meals-loading" />
+                }
+                else
+                {
+                    <div class="flex">
+                        @foreach (var recipe in filteredRecipes)
                         {
                             <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
-                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
-                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
-                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                                        ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                        Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                        Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
                         }
+                    </div>
                 }
             </div>
         </div>
@@ -49,13 +52,22 @@
     <div class="flex scroll">
         <div class="flex">
             <div class="flex flex-start scroll">
-                @foreach (var recipe in filteredRecipes)
+                @if (isLoading)
                 {
-                    <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
-                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
-                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
-                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                    <LoadingIndicator Message="Loading Recipes..." Class="meals-loading" />
+                }
+                else
+                {
+                    <div class="flex">
+                        @foreach (var recipe in filteredRecipes)
+                        {
+                            <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                        ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                        Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                        Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
 
+                        }
+                    </div>
                 }
             </div>
         </div>
@@ -68,7 +80,7 @@
 
 @code {
     private List<Recipe> recipes = new();
-    private bool isLoading;
+    private bool isLoading = true;
 
     private IEnumerable<Recipe> filteredRecipes =>
     recipes
@@ -84,7 +96,14 @@
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        recipes = await RecipeApiService.GetRecipesAsync();
-        isLoading = false;
+
+        try
+        {
+            recipes = await RecipeApiService.GetRecipesAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

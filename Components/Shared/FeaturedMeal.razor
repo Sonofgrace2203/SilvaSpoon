@@ -12,24 +12,24 @@
     </div>
     <div class="flex flex-start">
         <div class="pd-5 flex scroll flex-start">
-            <div class="flex">
-                @foreach (var meal in filteredMeals)
-                {
-                    @if (meal.IsAvailable)
+            @if (isLoading)
+            {
+                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+            }
+            else
+            {
+                <div class="flex">
+                    @foreach (var meal in filteredMeals)
                     {
-                        @if (isLoading)
-                        {
-                            <LoadingSpinner />
-                        }
-                        else
+                        @if (meal.IsAvailable)
                         {
                             <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
                                       MealTitle="@meal.Name" MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description"
                                       AltTitle="@meal.Name" />
                         }
                     }
-                }
-            </div>
+                </div>
+            }
         </div>
     </div>
     <div class="flex flex-center">
@@ -50,21 +50,23 @@
     </div>
     <div class="flex scroll">
         <div class="flex">
-            @foreach (var meal in filteredMeals)
+            @if (isLoading)
             {
-                @if (meal.IsAvailable)
-                {
-                    @if (isLoading)
-                        {
-                            <LoadingSpinner />
-                        }
-                        else
+                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+            }
+            else
+            {
+                <div class="flex">
+                    @foreach (var meal in filteredMeals)
+                    {
+                        @if (meal.IsAvailable)
                         {
                             <MealCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
                                       MealTitle="@meal.Name" MealPrice="@($"₦{meal.Price:N0}")" MealDesc="@meal.Description"
                                       AltTitle="@meal.Name" />
                         }
-                }
+                    }
+                </div>
             }
         </div>
     </div>
@@ -76,7 +78,7 @@
 
 @code {
     private List<Meal> meals = new();
-    private bool isLoading;
+    private bool isLoading = true;
 
     private void GoToMenu()
     {
@@ -86,8 +88,15 @@
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        meals = await MealApiService.GetMealsAsync();
-        isLoading = false;
+
+        try
+        {
+            meals = await MealApiService.GetMealsAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private IEnumerable<Meal> filteredMeals => meals.OrderBy(x => Guid.NewGuid()).Take(6);
