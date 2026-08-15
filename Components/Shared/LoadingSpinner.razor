@@ -1,13 +1,13 @@
 <div class="loading-indicator">
     <div class="loading-indicator-spinner"></div>
 
-    @* @if (!string.IsNullOrWhiteSpace(Message))
+    @if (!string.IsNullOrWhiteSpace(Message))
     {
         <span>@Message</span>
-    } *@
+    }
 </div>
 
-@* @code {
+@code {
     [Parameter]
     public string Message { get; set; } = "";
-} *@
+}
