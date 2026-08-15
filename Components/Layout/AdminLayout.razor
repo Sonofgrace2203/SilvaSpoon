@@ -26,7 +26,7 @@
     </div>
 
 
-    <div class="scroll wf" style="height: 100vh;">
+    <div id="admin-scroll-container" class="scroll wf" style="height: 100vh;">
         <div class="flex flex-spacebetween flex-center mgb-5 pd bg-primary-01">
             <i class="mdi mdi-menu fsz-25 " @onclick="ShowMenu"></i>
             <div>
@@ -100,6 +100,16 @@
         BusinessSettingsState.Set(businessInfoSetting);
 
         BusinessSettingsState.OnChange += Refresh;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync(
+                "silvaSpoonSetupScrollTracking"
+            );
+        }
     }
 
     public void Dispose()

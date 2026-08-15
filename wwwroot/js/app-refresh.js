@@ -1,5 +1,7 @@
 window.silvaSpoonRefreshDotNet = null;
 
+window.silvaSpoonCanRefresh = true;
+
 window.silvaSpoonSetRefreshReference = function (dotNetReference) {
     window.silvaSpoonRefreshDotNet = dotNetReference;
 };
@@ -18,29 +20,46 @@ window.silvaSpoonRefresh = function () {
 
 
 /*
- * Tell Android whether the page is currently at the top.
+ * Track the actual scrolling container.
  */
-window.silvaSpoonCanPullToRefresh = function () {
+window.silvaSpoonSetupScrollTracking = function () {
 
-    const scrollableElements = document.querySelectorAll(
-        '*'
-    );
+    const adminContainer =
+        document.getElementById("admin-scroll-container");
 
-    for (const element of scrollableElements) {
+    if (adminContainer) {
 
-        const style = window.getComputedStyle(element);
+        window.silvaSpoonCanRefresh =
+            adminContainer.scrollTop <= 0;
 
-        const isScrollable =
-            (style.overflowY === 'auto' ||
-             style.overflowY === 'scroll');
+        adminContainer.addEventListener(
+            "scroll",
+            function () {
 
-        if (isScrollable &&
-            element.scrollHeight > element.clientHeight &&
-            element.scrollTop > 0) {
+                window.silvaSpoonCanRefresh =
+                    adminContainer.scrollTop <= 0;
 
-            return false;
-        }
+            },
+            { passive: true }
+        );
+
+        return;
     }
 
-    return window.scrollY <= 0;
+    /*
+     * Customer/public pages.
+     */
+    window.silvaSpoonCanRefresh =
+        window.scrollY <= 0;
+
+    window.addEventListener(
+        "scroll",
+        function () {
+
+            window.silvaSpoonCanRefresh =
+                window.scrollY <= 0;
+
+        },
+        { passive: true }
+    );
 };
