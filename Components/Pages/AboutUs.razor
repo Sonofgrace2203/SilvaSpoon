@@ -25,12 +25,21 @@
                 </div>
             </div>
             <div>
-                @foreach (var feature in businessInfoSetting.Features)
+                @if (isLoading)
                 {
-                    <div class="flex mgb-2">
-                        <i class="mdi mdi-marker fsz-25 mgr fw-bold cl-primary"></i>
-                        <p class="mgt-2">@feature.Title</p>
+                    <div class="flex flex-center">
+                        <LoadingIndicator Message="Loading Features..." Class="meals-loading" />
                     </div>
+                }
+                else
+                {
+                    @foreach (var feature in businessInfoSetting.Features)
+                    {
+                        <div class="flex mgb-2">
+                            <i class="mdi mdi-marker fsz-25 mgr fw-bold cl-primary"></i>
+                            <p class="mgt-2">@feature.Title</p>
+                        </div>
+                    }
                 }
             </div>
         </div>
@@ -51,173 +60,195 @@
     <h3 class="cl-secondary mg-0 fw-bold fsz-30">Us</h3>
 </div>
 
-<div class="pd-5 grid col-2 wvg-5">
-    <div>
-        <div class="flex mgb-3 pd-5 miwx-3">
-            <i class="mdi mdi-whatsapp fsz-40 mgr-5 cl-primary"></i>
-            <div class="mgt--5">
-                <h5 class="mgb-1 fsz-17">WhatsApp/Phone</h5>
-                <div class="flex mgb-0">
-                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                    <p class="mg-0 bg-secondary-03 pd">@contactInfoSetting.PhoneNumber</p>
+
+
+@if (isLoading)
+{
+    <div class="flex flex-center">
+        <LoadingIndicator Message="Loading Business Info..." Class="meals-loading" />
+    </div>
+}
+else
+{
+    <div class="pd-5 grid col-2 wvg-5">
+        <div>
+            <div class="flex mgb-3 pd-5 miwx-3">
+                <i class="mdi mdi-whatsapp fsz-40 mgr-5 cl-primary"></i>
+                <div class="mgt--5">
+                    <h5 class="mgb-1 fsz-17">WhatsApp/Phone</h5>
+                    <div class="flex mgb-0">
+                        <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                        <p class="mg-0 bg-secondary-03 pd">@contactInfoSetting.PhoneNumber</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex mgb-3 pd-5 miwx-3">
+                <i class="mdi mdi-email-outline fsz-40 mgr-5 cl-secondary"></i>
+                <div class="mgt--5">
+                    <h5 class="mgb-1 fsz-17">Email</h5>
+                    <div class="flex mgb-0">
+                        <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                        <p class="mg-0 bg-secondary-03 pd">@contactInfoSetting.Email</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex mgb-3 pd-5 miwx-3">
+                <i class="mdi mdi-instagram fsz-40 mgr-5 cl-primary"></i>
+                <div class="mgt--5">
+                    <h5 class="mgb-1 fsz-17">Instagram</h5>
+                    <div class="flex mgb-0">
+                        <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                        <p class="mg-0 bg-secondary-03 pd">@socialMediaSetting.Instagram</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="flex mgb-3 pd-5 miwx-3">
-            <i class="mdi mdi-email-outline fsz-40 mgr-5 cl-secondary"></i>
-            <div class="mgt--5">
-                <h5 class="mgb-1 fsz-17">Email</h5>
-                <div class="flex mgb-0">
-                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                    <p class="mg-0 bg-secondary-03 pd">@contactInfoSetting.Email</p>
+        <div>
+            <div class="flex mgb-3 pd-5 miwx-3">
+                <i class="mdi mdi-clock-outline fsz-40 mgr cl-secondary"></i>
+                <div class="mgt--5">
+                    <h5 class="mgb fsz-17">Business Hours</h5>
+                    @if (contactInfoSetting.BusinessHours.Any())
+                    {
+                        @foreach (var hour in contactInfoSetting.BusinessHours)
+                        {
+                            <div class="flex mgb-0">
+                                <i class="mdi mdi-marker fsz-25 mgr fw-bold cl-primary"></i>
+
+                                <p class="mgt--2 mgb pd bg-secondary-03">
+                                    @hour.Day:
+                                    @(hour.IsClosed
+                                        ? "Closed"
+                                        : $"{FormatTime(hour.OpenTime)} - {FormatTime(hour.CloseTime)}")
+                                </p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No business hours available.</p>
+                    }
                 </div>
             </div>
-        </div>
-        <div class="flex mgb-3 pd-5 miwx-3">
-            <i class="mdi mdi-instagram fsz-40 mgr-5 cl-primary"></i>
-            <div class="mgt--5">
-                <h5 class="mgb-1 fsz-17">Instagram</h5>
-                <div class="flex mgb-0">
-                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                    <p class="mg-0 bg-secondary-03 pd">@socialMediaSetting.Instagram</p>
+            <div class="flex mgb-3 pd-5 miwx-3">
+                <i class="mdi mdi-location-enter fsz-40 mgr-5 cl-primary"></i>
+                <div class="mgt--5">
+                    <h5 class="mgb-1 fsz-17">Delivery Areas</h5>
+                    <div class="grid col-2">
+                        @foreach (var area in deliveryInfoSetting.Areas)
+                        {
+                            <div class="flex">
+                                <div class="flex mgr-5">
+                                    <div class="mgt-2">
+                                        <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                                    </div>
+                                    <div class="mgr-2 mgb-2 bg-secondary-03 pd">
+                                        <p class="mg-0">@area.Name</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div>
-        <div class="flex mgb-3 pd-5 miwx-3">
-            <i class="mdi mdi-clock-outline fsz-40 mgr cl-secondary"></i>
-            <div class="mgt--5">
-                <h5 class="mgb fsz-17">Business Hours</h5>
-                @if (contactInfoSetting.BusinessHours.Any())
-                {
-                    @foreach (var hour in contactInfoSetting.BusinessHours)
-                    {
-                        <div class="flex mgb-0">
-                            <i class="mdi mdi-marker fsz-25 mgr fw-bold cl-primary"></i>
+}
 
-                            <p class="mgt--2 mgb pd bg-secondary-03">
-                                @hour.Day:
-                                @(hour.IsClosed
-                                    ? "Closed"
-                                    : $"{FormatTime(hour.OpenTime)} - {FormatTime(hour.CloseTime)}")
-                            </p>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p>No business hours available.</p>
-                }
+
+
+@if (isLoading)
+{
+    <div class="flex flex-center">
+        <LoadingIndicator Message="Loading Business Info..." Class="meals-loading" />
+    </div>
+}
+else
+{
+    <div class="mgt--10 wvl-5 row responsive colm-3">
+        <div>
+            <div class="mgb pd-5 miwx-3">
+                <div class="flex justify-center">
+                    <i class="mdi mdi-whatsapp fsz-40 mgr cl-primary"></i>
+                    <h5 class="mgb-1 mgt fsz-20">WhatsApp/Phone</h5>
+                </div>
+                <div class="flex mgb-0">
+                    <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@contactInfoSetting.PhoneNumber</p>
+                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                </div>
+            </div>
+            <div class="mgb pd-5 miwx-3">
+                <div class="flex justify-center">
+                    <i class="mdi mdi-email-outline fsz-40 mgr cl-secondary"></i>
+                    <h5 class="mgb-1 mgt fsz-20">Email</h5>
+                </div>
+                <div class="flex mgb-0">
+                    <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@contactInfoSetting.Email</p>
+                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                </div>
+            </div>
+            <div class="mgb pd-5 miwx-3">
+                <div class="flex justify-center">
+                    <i class="mdi mdi-instagram fsz-40 mgr cl-primary"></i>
+                    <h5 class="mgb-1 mgt fsz-20">Instagram</h5>
+                </div>
+                <div class="flex mgb-0">
+                    <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@socialMediaSetting.Instagram</p>
+                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                </div>
             </div>
         </div>
-        <div class="flex mgb-3 pd-5 miwx-3">
-            <i class="mdi mdi-location-enter fsz-40 mgr-5 cl-primary"></i>
-            <div class="mgt--5">
-                <h5 class="mgb-1 fsz-17">Delivery Areas</h5>
-                <div class="grid col-2">
+        <div>
+            <div class="mgb pd-5 miwx-3">
+                <div class="flex justify-center">
+                    <i class="mdi mdi-clock-outline fsz-40 mgr cl-secondary"></i>
+                    <h5 class="mgb-1 mgt fsz-20">Business Hours</h5>
+                </div>
+                <div class="mgb-0">
+                    @if (contactInfoSetting.BusinessHours.Any())
+                    {
+                        @foreach (var hour in contactInfoSetting.BusinessHours)
+                        {
+                            <div class="flex">
+                                <p class="bg-secondary-03 pd mgr mgt-0 mgb-2 fw-bold">
+                                    @hour.Day:
+                                    @(hour.IsClosed
+                                        ? "Closed"
+                                        : $"{FormatTime(hour.OpenTime)} - {FormatTime(hour.CloseTime)}")
+                                </p>
+                                <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No business hours available.</p>
+                    }
+
+                </div>
+            </div>
+            <div class="mgb pd-5 miwx-3">
+                <div class="flex justify-center">
+                    <i class="mdi mdi-location-enter fsz-40 mgr-5 cl-primary"></i>
+                    <h5 class="mgb-1 mgt fsz-20">Delivery Areas</h5>
+                </div>
+                <div class="mgb-0">
                     @foreach (var area in deliveryInfoSetting.Areas)
                     {
-                        <div class="flex">
-                            <div class="flex mgr-5">
-                                <div class="mgt-2">
-                                    <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                                </div>
+                        <div class="flex mgr-5">
+                            <div class="flex mgr">
                                 <div class="mgr-2 mgb-2 bg-secondary-03 pd">
                                     <p class="mg-0">@area.Name</p>
                                 </div>
                             </div>
+                            <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
                         </div>
                     }
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="mgt--10 wvl-5 row responsive colm-3">
-    <div>
-        <div class="mgb pd-5 miwx-3">
-            <div class="flex justify-center">
-                <i class="mdi mdi-whatsapp fsz-40 mgr cl-primary"></i>
-                <h5 class="mgb-1 mgt fsz-20">WhatsApp/Phone</h5>
-            </div>
-            <div class="flex mgb-0">
-                <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@contactInfoSetting.PhoneNumber</p>
-                <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-            </div>
-        </div>
-        <div class="mgb pd-5 miwx-3">
-            <div class="flex justify-center">
-                <i class="mdi mdi-email-outline fsz-40 mgr cl-secondary"></i>
-                <h5 class="mgb-1 mgt fsz-20">Email</h5>
-            </div>
-            <div class="flex mgb-0">
-                <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@contactInfoSetting.Email</p>
-                <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-            </div>
-        </div>
-        <div class="mgb pd-5 miwx-3">
-            <div class="flex justify-center">
-                <i class="mdi mdi-instagram fsz-40 mgr cl-primary"></i>
-                <h5 class="mgb-1 mgt fsz-20">Instagram</h5>
-            </div>
-            <div class="flex mgb-0">
-                <p class="bg-secondary-03 pd mgr mgt-0 fw-bold">@socialMediaSetting.Instagram</p>
-                <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-            </div>
-        </div>
-    </div>
-    <div>
-        <div class="mgb pd-5 miwx-3">
-            <div class="flex justify-center">
-                <i class="mdi mdi-clock-outline fsz-40 mgr cl-secondary"></i>
-                <h5 class="mgb-1 mgt fsz-20">Business Hours</h5>
-            </div>
-            <div class="mgb-0">
-                @if (contactInfoSetting.BusinessHours.Any())
-                {
-                    @foreach (var hour in contactInfoSetting.BusinessHours)
-                    {
-                        <div class="flex">
-                            <p class="bg-secondary-03 pd mgr mgt-0 mgb-2 fw-bold">
-                                @hour.Day:
-                                @(hour.IsClosed
-                                    ? "Closed"
-                                    : $"{FormatTime(hour.OpenTime)} - {FormatTime(hour.CloseTime)}")
-                            </p>
-                            <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p>No business hours available.</p>
-                }
-
-            </div>
-        </div>
-        <div class="mgb pd-5 miwx-3">
-            <div class="flex justify-center">
-                <i class="mdi mdi-location-enter fsz-40 mgr-5 cl-primary"></i>
-                <h5 class="mgb-1 mgt fsz-20">Delivery Areas</h5>
-            </div>
-            <div class="mgb-0">
-                @foreach (var area in deliveryInfoSetting.Areas)
-                {
-                    <div class="flex mgr-5">
-                        <div class="flex mgr">
-                            <div class="mgr-2 mgb-2 bg-secondary-03 pd">
-                                <p class="mg-0">@area.Name</p>
-                            </div>
-                        </div>
-                        <i class="mdi mdi-marker fsz-25 mgr mgt-2 fw-bold cl-primary"></i>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 <Footer />
 
@@ -226,13 +257,23 @@
     private BusinessSetting businessInfoSetting = new();
     private ContactSetting contactInfoSetting = new();
     private DeliverySetting deliveryInfoSetting = new();
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        socialMediaSetting = await SocialMedia.GetAsync() ?? new SocialMediaSetting();
-        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
-        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
-        deliveryInfoSetting = await DeliverySetting.GetAsync() ?? new DeliverySetting();
+        isLoading = true;
+
+        try
+        {
+            socialMediaSetting = await SocialMedia.GetAsync() ?? new SocialMediaSetting();
+            businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+            contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+            deliveryInfoSetting = await DeliverySetting.GetAsync() ?? new DeliverySetting();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private string FormatTime(string time)

@@ -16,9 +16,18 @@
 <div class="bg-primary wvg-5 pd-5">
     <div class="flex flex-spacebetween flex-center pd pos-rel">
         <div>
-            <div class="flex fsz-40">
-                <p class="cl-secondary fw-bold fsz-30 mg-0">@businessInfoSetting.BusinessName.ToUpper()</p>
-            </div>
+            @if (isLoading)
+            {
+                <div class="flex flex-center">
+                    <LoadingIndicator Class="meals-loading" />
+                </div>
+            }
+            else
+            {
+                <div class="flex fsz-40">
+                    <p class="cl-secondary fw-bold fsz-30 mg-0">@businessInfoSetting.BusinessName.ToUpper()</p>
+                </div>
+            }
             <p>&copy 2026... All Right Reserved.</p>
 
             <div class="mgt-5">
@@ -59,9 +68,18 @@
 <div class="bg-primary wvl-5">
     <div class="flex flex-spacebetween flex-center pd pdt-10 pos-rel">
         <div>
-            <div class="flex">
-                <p class="cl-secondary fw-bold fsz-20 mg-0">@businessInfoSetting.BusinessName</p>
-            </div>
+            @if (isLoading)
+            {
+                <div class="flex flex-center">
+                    <LoadingIndicator Class="meals-loading" />
+                </div>
+            }
+            else
+            {
+                <div class="flex">
+                    <p class="cl-secondary fw-bold fsz-20 mg-0">@businessInfoSetting.BusinessName</p>
+                </div>
+            }
             <p class="fsz-13">&copy 2026... All Right Reserved.</p>
 
             <div class="mgt-5">
@@ -104,11 +122,22 @@
     private SocialMediaSetting socialMediaSetting = new();
     private ContactSetting contactInfoSetting = new();
 
+    private bool isLoading = true;
+
     protected override async Task OnInitializedAsync()
     {
-        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
-        socialMediaSetting = await SocialMedia.GetAsync() ?? new SocialMediaSetting();
-        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+        isLoading = true;
+
+        try
+        {
+            businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+            socialMediaSetting = await SocialMedia.GetAsync() ?? new SocialMediaSetting();
+            contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+        }
+        finally
+        {
+            isLoading = false;
+        }
 
         BusinessSettingsState.Set(businessInfoSetting);
         BusinessSettingsState.OnChange += Refresh;

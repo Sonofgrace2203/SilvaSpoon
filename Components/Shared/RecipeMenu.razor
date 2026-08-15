@@ -182,17 +182,25 @@
                 </div>
 
                 <div class="flex flex-start scroll">
-                    @foreach (var relatedRecipe in relatedRecipes)
+                    @if (isLoading)
                     {
-                        <NavLink href="@($"Recipe/Content/{relatedRecipe.Id}")" style="text-decoration: none;"
-                                 class="cl-black">
+                        <div class="flex flex-center">
+                            <LoadingIndicator Message="Loading Recipe Categories..." Class="meals-loading" />
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var relatedRecipe in relatedRecipes)
+                        {
+                            <NavLink href="@($"Recipe/Content/{relatedRecipe.Id}")" style="text-decoration: none;" class="cl-black">
 
-                            <RecipeCard MealTitle="@relatedRecipe.Title" MealDesc="@relatedRecipe.Description"
-                                        ResRating="@relatedRecipe.Rating.ToString("0.0")" ResCount="@relatedRecipe.RatingCount"
-                                        Img="@ImageUrlService.GetImageUrl(relatedRecipe.ImageUrl)" ResDiff="@relatedRecipe.Difficulty"
-                                        Category="@relatedRecipe.Category" Timing="@relatedRecipe.CreatedAt.ToString("MMM dd, yyyy")" />
+                                <RecipeCard MealTitle="@relatedRecipe.Title" MealDesc="@relatedRecipe.Description"
+                                            ResRating="@relatedRecipe.Rating.ToString("0.0")" ResCount="@relatedRecipe.RatingCount"
+                                            Img="@ImageUrlService.GetImageUrl(relatedRecipe.ImageUrl)" ResDiff="@relatedRecipe.Difficulty"
+                                            Category="@relatedRecipe.Category" Timing="@relatedRecipe.CreatedAt.ToString("MMM dd, yyyy")" />
 
-                        </NavLink>
+                            </NavLink>
+                        }
                     }
                 </div>
             </div>
@@ -203,8 +211,8 @@
 }
 else
 {
-    <div class="pd text-center">
-        <p>Loading recipe...</p>
+    <div class="flex flex-center">
+        <LoadingIndicator Message="Loading Recipe..." Class="meals-loading" />
     </div>
 }
 
@@ -214,6 +222,7 @@ else
     private Recipe? recipe;
     private List<Recipe> relatedRecipes = new();
 
+    private bool isLoading = true;
     private bool isFavorite;
     private bool isFavoriteProcessing;
     private bool recipeCopied = false;
@@ -230,30 +239,39 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (RecipeId == 0)
-            return;
+        isLoading = true;
 
-        recipe = await RecipeApiService.GetRecipeAsync(RecipeId);
-
-        if (recipe != null)
+        try
         {
-            isFavorite =
-                await FavoriteStorageService.IsFavoriteAsync(recipe.Id);
+            if (RecipeId == 0)
+                return;
 
-            hasRated = await RecipeRatingStorageService.HasRatedAsync(RecipeId);
+            recipe = await RecipeApiService.GetRecipeAsync(RecipeId);
 
-            if (hasRated)
+            if (recipe != null)
             {
-                userRating = await RecipeRatingStorageService.GetRatingAsync(RecipeId);
+                isFavorite =
+                    await FavoriteStorageService.IsFavoriteAsync(recipe.Id);
+
+                hasRated = await RecipeRatingStorageService.HasRatedAsync(RecipeId);
+
+                if (hasRated)
+                {
+                    userRating = await RecipeRatingStorageService.GetRatingAsync(RecipeId);
+                }
+
+                var recipes = await RecipeApiService.GetRecipesAsync();
+
+                relatedRecipes = recipes
+                    .Where(x => x.IsPublished && x.Id != recipe.Id)
+                    .OrderBy(x => Guid.NewGuid())
+                    .Take(5)
+                    .ToList();
             }
-
-            var recipes = await RecipeApiService.GetRecipesAsync();
-
-            relatedRecipes = recipes
-                .Where(x => x.IsPublished && x.Id != recipe.Id)
-                .OrderBy(x => Guid.NewGuid())
-                .Take(5)
-                .ToList();
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 

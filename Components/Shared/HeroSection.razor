@@ -13,15 +13,24 @@
         <div class="mgt-20">
             <p class="mg-0 pd fsz-20 bdb bdb-primary cl-white op-7 text-center pdb-5 reenie-beanie-regular">Welcome to
             </p>
-            <div class="container-fluid flex">
-                <div class="flex wf">
-                    <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
-                         alt="@businessInfoSetting.BusinessName" class="wx-1 hx-1 corner-03" />
+            @if (isLoading)
+            {
+                <div class="flex flex-center">
+                    <LoadingIndicator Class="meals-loading" />
                 </div>
-                <div class="flex pd fsz-40">
-                    <p class="cl-secondary fw-bold fsz-70 mg-0 op-9">@businessInfoSetting.BusinessName.ToUpper()</p>
+            }
+            else
+            {
+                <div class="container-fluid flex">
+                    <div class="flex wf">
+                        <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                             alt="@businessInfoSetting.BusinessName" class="wx-1 hx-1 corner-03" />
+                    </div>
+                    <div class="flex pd fsz-40">
+                        <p class="cl-secondary fw-bold fsz-70 mg-0 op-9">@businessInfoSetting.BusinessName.ToUpper()</p>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
         <p class="mg-0 pd fsz-20 wx-4 text-center bdt pd cl-white op-7 bdt-primary">Delivered home-made meals that are
             fresh to your
@@ -49,16 +58,26 @@
     <div class="pd-5 herosection flex flow wvl-5">
         <div class="pd-5 flex slide-in-top stack flex-center">
             <div class="mgt-20">
-                <p class="mg-0 fsz-15 bdb bdb-primary cl-white op-7 text-center pdb-5 reenie-beanie-regular">Welcome to</p>            
-                <div class="flex flex-center">
-                    @* <div class="flex wf">
-                        <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ?? "icons/business-placeholder.png")"
+                <p class="mg-0 fsz-15 bdb bdb-primary cl-white op-7 text-center pdb-5 reenie-beanie-regular">Welcome to</p>
+                @if (isLoading)
+                {
+                    <div class="flex flex-center">
+                        <LoadingIndicator Class="meals-loading" />
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-center">
+                        @* <div class="flex wf">
+                        <img src="@(ImageUrlService.GetImageUrl(businessInfoSetting.ImageUrl) ??
+                "icons/business-placeholder.png")"
                              alt="@businessInfoSetting.BusinessName" class="wx-05 hx-05 corner-03" />
                     </div> *@
-                    <div class="flex fsz-40 pd">
-                        <p class="cl-secondary fw-bold fsz-40 mg-0 op-9">@businessInfoSetting.BusinessName.ToUpper()</p>
+                        <div class="flex fsz-40 pd">
+                            <p class="cl-secondary fw-bold fsz-40 mg-0 op-9">@businessInfoSetting.BusinessName.ToUpper()</p>
+                        </div>
                     </div>
-                </div>
+                }
             </div>
             <p class="mg-0 fsz-15 text-center cl-white pd op-7 bdt bdt-primary">Delivered home-made meals delivered fresh to
                 your doorstep.
@@ -83,11 +102,21 @@
 @code {
     private BusinessSetting businessInfoSetting = new();
     private ContactSetting contactInfoSetting = new();
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
-        contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+        isLoading = true;
+
+        try
+        {
+            businessInfoSetting = await BusinessSetting.GetAsync() ?? new BusinessSetting();
+            contactInfoSetting = await ContactSetting.GetAsync() ?? new ContactSetting();
+        }
+        finally
+        {
+            isLoading = false;
+        }
 
         BusinessSettingsState.Set(businessInfoSetting);
         BusinessSettingsState.OnChange += Refresh;

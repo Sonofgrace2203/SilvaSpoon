@@ -9,9 +9,20 @@
     </div>
     <div class="pd-5 flex">
         <div class="flex flex-center flow mahx-6 scroll-y">
-            @foreach (var review in reviews)
+            @if (isLoading)
             {
-                <CustomerCard Review="review" />
+                <div class="flex flex-center">
+                    <LoadingIndicator Message="Loading Reviews..." Class="meals-loading" />
+                </div>
+            }
+            else
+            {
+                <div class="flex">
+                    @foreach (var review in reviews)
+                    {
+                        <CustomerCard Review="review" />
+                    }
+                </div>
             }
         </div>
     </div>
@@ -30,9 +41,20 @@
     </div>
     <div class="flex">
         <div class="flex flex-center flow mahx-6 scroll-y">
-            @foreach (var review in reviews)
+            @if (isLoading)
             {
-                <CustomerCard Review="review" />
+                <div class="flex flex-center">
+                    <LoadingIndicator Message="Loading Reviews..." Class="meals-loading" />
+                </div>
+            }
+            else
+            {
+                <div class="flex">
+                    @foreach (var review in reviews)
+                    {
+                        <CustomerCard Review="review" />
+                    }
+                </div>
             }
         </div>
     </div>
@@ -40,12 +62,22 @@
 
 @code {
     private List<Review> reviews = new();
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        reviews = (await ReviewApiService.GetReviewsAsync())
-            .Where(r => r.IsPublished)
-            .ToList();
+        isLoading = true;
+        
+        try
+        {
+            reviews = (await ReviewApiService.GetReviewsAsync())
+                .Where(r => r.IsPublished)
+                .ToList();
+        }
+        finally
+        {
+            isLoading = false;
+        }
 
         StateHasChanged();
     }

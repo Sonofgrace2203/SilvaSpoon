@@ -89,23 +89,14 @@
 
 <div class="flex flex-center mgt--15 wvg-5">
     <div class="flex flex-center flow pd mahx-10 scroll-y">
-        @foreach (var recipe in filteredRecipes)
+        @if (isLoading)
         {
-            <NavLink href="@($"Recipe/Content/{recipe.Id}")" style="text-decoration: none;" class="cl-black">
-
-                <RecipeMenuCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
-                                ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
-                                Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
-                                Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
-
-            </NavLink>
+            <div class="flex flex-center">
+                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+            </div>
         }
-    </div>
-</div>
-
-<div class="flex flex-center">
-    <div class="mgt--10 wvl-5">
-        <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
+        else
+        {
             @foreach (var recipe in filteredRecipes)
             {
                 <NavLink href="@($"Recipe/Content/{recipe.Id}")" style="text-decoration: none;" class="cl-black">
@@ -117,6 +108,33 @@
 
                 </NavLink>
             }
+        }
+    </div>
+</div>
+
+<div class="flex flex-center">
+    <div class="mgt--10 wvl-5">
+        <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
+            @if (isLoading)
+            {
+                <div class="flex flex-center">
+                    <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                </div>
+            }
+            else
+            {
+                @foreach (var recipe in filteredRecipes)
+                {
+                    <NavLink href="@($"Recipe/Content/{recipe.Id}")" style="text-decoration: none;" class="cl-black">
+
+                        <RecipeMenuCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"
+                                        ResRating="@recipe.Rating.ToString("0.0")" ResCount="@recipe.RatingCount"
+                                        Img="@ImageUrlService.GetImageUrl(recipe.ImageUrl)" ResDiff="@recipe.Difficulty"
+                                        Category="@recipe.Category" Timing="@recipe.CreatedAt.ToString("MMM dd, yyyy")" />
+
+                    </NavLink>
+                }
+            }
         </div>
     </div>
 </div>
@@ -126,6 +144,7 @@
 @code {
     private string searchedRecipe = "";
     private string currentFilter = "All";
+    private bool isLoading = true;
 
     [SupplyParameterFromQuery(Name = "category")]
     public string? Category { get; set; }
@@ -135,10 +154,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        recipes = await RecipeApiService.GetRecipesAsync();
+        isLoading = true;
 
-        categories = await MealCategoryService.GetAsync()
-                     ?? new List<MealCategory>();
+        try
+        {
+            recipes = await RecipeApiService.GetRecipesAsync();
+
+            categories = await MealCategoryService.GetAsync()
+                         ?? new List<MealCategory>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
 
         if (!string.IsNullOrWhiteSpace(Category))
         {

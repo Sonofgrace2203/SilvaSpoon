@@ -90,53 +90,72 @@
 
 <div class="flex flex-center mgt--15 wvg-5">
     <div class="flex flex-center flow pd mahx-10 scroll-y">
-        @foreach (var meal in filteredMeals)
+
+        
+        @if (isLoading)
         {
-            @if (meal.IsAvailable)
+            <div class="flex flex-center">
+                <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+            </div>
+        }
+        else
+        {
+            @foreach (var meal in filteredMeals)
             {
-                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                          AltTitle="@meal.Name" MealDesc="@meal.Description"
-                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
-                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
-                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
-            }
-            else
-            {
-                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                          AltTitle="@meal.Name" MealDesc="@meal.Description"
-                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
-                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
-                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                @if (meal.IsAvailable)
+                {
+                    <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                              AltTitle="@meal.Name" MealDesc="@meal.Description"
+                              BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                              ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                              IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                }
+                else
+                {
+                    <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
+                              AltTitle="@meal.Name" MealDesc="@meal.Description"
+                              BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                              ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                              IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                }
             }
         }
-
     </div>
 </div>
 
 <div class="flex flex-center">
     <div class="mgt--10 wvl-5">
-    <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
-        @foreach (var meal in filteredMeals)
-        {
-            @if (meal.IsAvailable)
+        <div class="grid col-2 flow pd mgt-5 mahx-10 scroll-y">
+            @if (isLoading)
             {
-                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                          AltTitle="@meal.Name" MealDesc="@meal.Description"
-                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
-                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
-                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                <div class="flex flex-center">
+                    <LoadingIndicator Message="Loading Meals..." Class="meals-loading" />
+                </div>
             }
             else
             {
-                <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")" MealTitle="@meal.Name"
-                          AltTitle="@meal.Name" MealDesc="@meal.Description"
-                          BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
-                          ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
-                          IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                @foreach (var meal in filteredMeals)
+                {
+                    @if (meal.IsAvailable)
+                    {
+                        <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
+                                  MealTitle="@meal.Name" AltTitle="@meal.Name" MealDesc="@meal.Description"
+                                  BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                                  ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                                  IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                    }
+                    else
+                    {
+                        <MenuCard Img="@(ImageUrlService.GetImageUrl(meal.ImageUrl) ?? "icons/customer.jpeg")"
+                                  MealTitle="@meal.Name" AltTitle="@meal.Name" MealDesc="@meal.Description"
+                                  BadgeTitle="@(meal.IsAvailable ? "Available" : "Unavailable")" BgColor="rgb(0, 141, 0, 0.3)"
+                                  ClColor="rgb(0, 141, 0)" MealPrice="@($"₦{meal.Price:N0}")" AddToCart="() => AddToCart(meal)"
+                                  IsAvailable="@meal.IsAvailable" IsAdded="@(addedMealId == meal.Id)" />
+                    }
+                }
             }
-        }
+        </div>
     </div>
-</div>
 </div>
 
 <Footer />
@@ -144,6 +163,7 @@
 @code {
     private string searchedMeal = "";
     private string currentFilter = "All";
+    private bool isLoading = true;
 
     private int? addedMealId;
     private CancellationTokenSource? addToCartCts;
@@ -153,10 +173,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        meals = await MealApiService.GetMealsAsync();
+        isLoading = true;
 
-        categories = await MealCategoryService.GetAsync()
-                     ?? new List<MealCategory>();
+        try
+        {
+            meals = await MealApiService.GetMealsAsync();
+
+            categories = await MealCategoryService.GetAsync()
+                         ?? new List<MealCategory>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private IEnumerable<Meal> filteredMeals
