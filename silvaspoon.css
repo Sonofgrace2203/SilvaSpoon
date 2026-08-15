@@ -323,7 +323,6 @@ select:focus {
     background: #ffffff;
 }
 
-
 .loading-logo-wrapper {
     width: 92px;
     height: 92px;
@@ -333,13 +332,11 @@ select:focus {
     margin-bottom: 18px;
 }
 
-
 .loading-logo {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
-
 
 .loading-brand {
     font-size: 26px;
@@ -347,13 +344,11 @@ select:focus {
     margin-bottom: 8px;
 }
 
-
 .loading-message {
     font-size: 14px;
     opacity: 0.55;
     margin-bottom: 24px;
 }
-
 
 .loading-spinner {
     width: 32px;
@@ -363,7 +358,6 @@ select:focus {
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
-
 
 @keyframes spin {
     to {
@@ -375,13 +369,25 @@ select:focus {
 
 
 
-/* Browser refresh loading state */
+
+
+
+
+
+
+
+
+
+
+
+
+/* Browser refresh */
 
 html.page-reloading .app-loading {
     flex-direction: row;
-    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
 }
-
 
 html.page-reloading .loading-logo-wrapper,
 html.page-reloading .loading-brand,
@@ -389,9 +395,12 @@ html.page-reloading .loading-message {
     display: none;
 }
 
-
 html.page-reloading .loading-spinner {
+    display: block;
     width: 24px;
     height: 24px;
-    border-width: 2px;
+    border: 2px solid #eeeeee;
+    border-top-color: #000000;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
