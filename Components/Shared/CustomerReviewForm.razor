@@ -12,6 +12,7 @@
     <DataAnnotationsValidator />
 
     <div class="row responsive col-2">
+        <h4 class="cl-secondary pd corner-2 bg-secondary-03">Give a review to make us serve better.</h4>
 
         <div class="stack mgb-5">
             <label class="mgb">Your Name</label>
@@ -48,7 +49,7 @@
 
         <div class="stack mgb-5 mgt-2">
             <label class="mgb">Your Review</label>
-            <InputTextArea class="pd bd corner-2 hx-2" @bind-Value="review.Comment" />
+            <InputTextArea class="pd bd corner-2 hx-1" @bind-Value="review.Comment" />
             <ValidationMessage class="fsz-12 mgt cl-fatal" For="@(() => review.Comment)" />
         </div>
 
