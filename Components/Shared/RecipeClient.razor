@@ -41,10 +41,8 @@
         </div>
 
         <div class="flex flex-center">
-            <div class="mgb-2">
-                <input placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
+            <input placeholder="Search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
                    @bind="searchedRecipe" @onkeydown="HandleSearchKey" />
-            </div>
 
             <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchRecipes">
                 <i class="mdi mdi-magnify"></i>
@@ -81,7 +79,7 @@
         <div class="mgt-1">
             <div class="mgb-2">
                 <input type="text" placeholder="search recipe..." class="pd-3 bg-primary-01 corner-5 wx-3 bd-none"
-                   @bind="searchedRecipe" />
+                       @bind="searchedRecipe" />
             </div>
 
             <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchRecipes">

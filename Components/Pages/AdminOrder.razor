@@ -43,10 +43,8 @@
             </div>
 
             <div class="flex flex-center">
-                <div class="mgb-2">
-                    <input placeholder="Search by Order ID, Customer or Phone..."
-                       class="pd-3 bg-primary-01 corner-5 wx-3 bd-none" @bind="searchText" @onkeydown="HandleSearchKeyDown" />
-                </div>
+                <input placeholder="Search by Order ID, Customer or Phone..."
+                       class="pd-3 bg-primary-01 corner-5 mgr-3 wx-3 bd-none" @bind="searchText" @onkeydown="HandleSearchKeyDown" />
 
                 <button class="pd bg-primary bd-none corner-5 mgr-2" @onclick="SearchOrders">
                     <i class="mdi mdi-magnify"></i>
