@@ -11,16 +11,13 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<div class="wvl-5">
-    <NavBar />
-</div>
 
 @if (recipe != null)
 {
-    <div class="pdt-20">
+    <div class="pdt-20 mg">
         <div class="pdt-5 mgb-10">
             <div class="flex mgb-5">
-                <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-10 bg-card pd round bd pointer"
+                <i class="mdi mdi-arrow-left fsz-15 fw-bold mgr-3 bg-card pd round bd pointer"
                    @onclick='() => Nav.NavigateTo("Recipe")'></i>
                 <div class="mgt-3">
                     <h3 class="mg-0">Back to recipes</h3>
@@ -206,8 +203,6 @@
             </div>
         </div>
     </div>
-
-    <Footer />
 }
 else
 {
