@@ -14,7 +14,7 @@
     </div>
     <div class="flex flex-start">
         <div class="pd-5 flex scroll flex-start">
-            <div class="flex">
+            <div class="flex mg">
                 @if (isLoading)
                 {
                     <div class="flex flex-center">
@@ -23,7 +23,7 @@
                 }
                 else
                 {
-                    <div class="flex">
+                    <div class="flex mgl">
                         @foreach (var recipe in filteredRecipes)
                         {
                             <RecipeCard MealTitle="@recipe.Title" MealDesc="@recipe.Description"

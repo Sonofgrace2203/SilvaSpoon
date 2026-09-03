@@ -14,19 +14,19 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// builder.Services.AddScoped(sp => new HttpClient
-// {
-//     BaseAddress = new Uri("http://localhost:5147/")
-// });
-
-var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
-    ? "http://localhost:5147/"
-    : "https://silvaspoonapi-2.onrender.com/";
-
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(apiBaseUrl)
+    BaseAddress = new Uri("http://localhost:5147/")
 });
+
+// var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
+//     ? "http://localhost:5147/"
+//     : "https://silvaspoonapi-2.onrender.com/";
+
+// builder.Services.AddScoped(sp => new HttpClient
+// {
+//     BaseAddress = new Uri(apiBaseUrl)
+// });
 
 builder.Services.AddScoped<IMealApiService, MealApiService>();
 builder.Services.AddScoped<IOrderApiService, OrderApiService>();

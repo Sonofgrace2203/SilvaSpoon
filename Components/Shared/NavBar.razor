@@ -115,28 +115,39 @@
                     </div>
                 </div>
             </div>
-            <div class="stack flex flex-center pd slide-in-top" style="display: @(showMenu ? "block" : "none");">
-                <div class="wf text-center pd fsz-20">
-                    <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="">HOME</NavLink>
-                </div>
-                <div class="wf text-center pd fsz-20">
-                    <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="Menu">MENU</NavLink>
-                </div>
-                <div class="wf text-center pd fsz-20">
-                    <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="Recipe">RECIPE
-                    </NavLink>
-                </div>
-                <div class="wf text-center pd fsz-20">
-                    <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="About-Us">ABOUT US
-                    </NavLink>
-                </div>
+            <div style="display: @(hideNavBar ? "block" : "none");">
+                <div class="stack flex flex-center pd slide-in-top" style="display: @(showMenu ? "block" : "none");">
+                    <div class="wf text-center pd fsz-20" @onclick="HideNavBar">
+                        <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="">HOME
+                        </NavLink>
+                    </div>
+                    <div class="wf text-center pd fsz-20" @onclick="HideNavBar">
+                        <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;" href="Menu">
+                            MENU
+                        </NavLink>
+                    </div>
+                    <div class="wf text-center pd fsz-20" @onclick="HideNavBar">
+                        <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;"
+                                 href="Recipe">
+                            RECIPE
+                        </NavLink>
+                    </div>
+                    <div class="wf text-center pd fsz-20" @onclick="HideNavBar">
+                        <NavLink class="cl-primary fw-bold navlink text-center" style="text-decoration: none;"
+                                 href="About-Us">
+                            ABOUT US
+                        </NavLink>
+                    </div>
 
-                <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
-                    <button class="bg-primary pd bd corner-3 wf text-center flex flex-center button">
-                        <i class="mdi mdi-whatsapp fw-bold fsz-20"></i>
-                        Chat On WhatsApp
-                    </button>
-                </NavLink>
+                    <div @onclick="HideNavBar">
+                        <NavLink href="@($"https://wa.me/{contactInfoSetting.PhoneNumber}")" target="_blank">
+                            <button class="bg-primary pd bd corner-3 wf text-center flex flex-center button">
+                                <i class="mdi mdi-whatsapp fw-bold fsz-20"></i>
+                                Chat On WhatsApp
+                            </button>
+                        </NavLink>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,9 +159,9 @@
 
 @code {
     private bool showMenu = false;
+    private bool hideNavBar = false;
 
-    private bool HasCartItems =>
-    CartService.Items.Any();
+    private bool HasCartItems => CartService.Items.Any();
 
     private bool isLoading = true;
 
@@ -162,11 +173,18 @@
     private void ShowMenu()
     {
         showMenu = !showMenu;
+        hideNavBar = true;
     }
 
     private void ShowCart()
     {
         CartService.OpenCart();
+    }
+
+    private void HideNavBar()
+    {
+        hideNavBar = false;
+        showMenu = false;
     }
 
     protected override async Task OnInitializedAsync()

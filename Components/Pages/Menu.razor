@@ -10,9 +10,6 @@
 @inject IImageUrlService ImageUrlService
 
 
-@* <div class="wvl-5">
-    <NavBar />
-</div> *@
 
 <div class="pd-20 wvg-5">
     <div class="mgt-10 mgb-10">
@@ -92,8 +89,6 @@
 
 <div class="flex flex-center mgt--15 wvg-5">
     <div class="flex flex-center flow pd mahx-10 scroll-y">
-
-        
         @if (isLoading)
         {
             <div class="flex flex-center">
@@ -159,8 +154,6 @@
         </div>
     </div>
 </div>
-
-<Footer />
 
 @code {
     private string searchedMeal = "";
