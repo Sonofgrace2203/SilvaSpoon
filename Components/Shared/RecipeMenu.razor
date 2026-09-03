@@ -143,7 +143,7 @@
                 @foreach (var ingredient in recipe.Ingredients.OrderBy(x => x.DisplayOrder))
                 {
                     <div class="flex flex-start pd">
-                        <div class="flex flex-center mgb-3">
+                        <div class="flex flex-center mgb">
                             <i class="mdi mdi-dots-circle cl-secondary fsz-15 mgr-5"></i>
                             <p class="mg-0">@ingredient.Ingredient</p>
                         </div>
@@ -156,7 +156,7 @@
                 <div class="flex flex-start stack">
                     @foreach (var instruction in recipe.Instructions.OrderBy(x => x.StepNumber))
                     {
-                        <div class="mgb-3 pd">
+                        <div class="mgb pd">
                             <div class="flex flex-center">
                                 <div class="wx-01 hx-01 bd round bd-secondary pd mgr-5 flex flex-center">
                                     <p class="pd cl-secondary fw-bold fsz-15">
