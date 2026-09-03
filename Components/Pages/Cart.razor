@@ -34,13 +34,15 @@
                     {
                         @foreach (var item in CartService.Items)
                         {
-                            <div class="wf">
-                                <CartCard Img="@ImageUrlService.GetImageUrl(item.Meal.ImageUrl)" MealTitle="@item.Meal.Name"
-                                          MealPrice="@($"₦{item.Meal.Price:N0}")"
-                                          MealPriceTotal="@($"₦{item.Meal.Price * item.Quantity:N0}")" Num="@item.Quantity"
-                                          OnIncrement="@(() => CartService.IncreaseQuantity(item.Meal.Id))"
-                                          OnDecrement="@(() => CartService.DecreaseQuantity(item.Meal.Id))"
-                                          OnRemove="@(() => CartService.RemoveMeal(item.Meal.Id))" />
+                            <div class="flex flex-spacebetween flex-center mgb-3">
+                                <div class="">
+                                    <CartCard Img="@ImageUrlService.GetImageUrl(item.Meal.ImageUrl)" MealTitle="@item.Meal.Name"
+                                              MealPrice="@($"₦{item.Meal.Price:N0}")"
+                                              MealPriceTotal="@($"₦{item.Meal.Price * item.Quantity:N0}")" Num="@item.Quantity"
+                                              OnIncrement="@(() => CartService.IncreaseQuantity(item.Meal.Id))"
+                                              OnDecrement="@(() => CartService.DecreaseQuantity(item.Meal.Id))"
+                                              OnRemove="@(() => CartService.RemoveMeal(item.Meal.Id))" />
+                                </div>
                             </div>
                         }
                     }

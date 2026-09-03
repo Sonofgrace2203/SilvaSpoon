@@ -1,36 +1,68 @@
-<div class="flex flex-center">
-    <div class="flex flex-start flex-aligncenter bd corner-3 pd mgb-5 shadow-border-3">
+<div class="flex flex-center wvg-5 wx-29">
+    <div class="flex flex-start flex-aligncenter bd corner-3 pd miwx-3 mgb-5 shadow-border-3">
         <img src="@Img" alt="@AltTitle" class="wx-05 hx-05 corner-3" />
 
-        <div class="flex flex-spacebetween wf">
+        <div class="flex flex-spacebetween">
             <div class="flex-1 pdl-10">
-                <div class="mgr-10">
-                    <h5 class="mg-0 pdb-2 fsz-13">@MealTitle</h5>
-                    <h3 class="mg-0 pdb-2 fsz-13 cl-secondary">@MealPrice</h3>
-                    <div class="">
-                        <div class="flex text-center corner-2 bd wx-1 mgr-5">
-                            <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0"
-                                    @onclick="HandleDecre">
-                                -</button>
-                                <p class="wf fsz-15 fw-bold mg-0 pd">@Num</p>
-                                <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0"
-                                        @onclick="HandleIncre">
-                                    +</button>
-                                </div>
+                <h5 class="mg-0 pdb-2 fsz-13 wx-13">@MealTitle</h5>
+                <h3 class="mg-0 pdb-2 fsz-13 cl-secondary">@MealPrice</h3>
+                <div class="">
+                    <div class="flex text-center corner-2 bd wx-1 mgr-5">
+                        <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0" @onclick="HandleDecre">
+                            -</button>
+                            <p class="wf fsz-15 fw-bold mg-0 pd">@Num</p>
+                            <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0" @onclick="HandleIncre">
+                                +</button>
                             </div>
                         </div>
                     </div>
+
+                    <h3 class="mg-0 pdl-5 cl-secondary fsz-20">
+                        @MealPriceTotal
+                    </h3>
                 </div>
 
-                <h3 class="mg-0 cl-secondary fsz-20">
-                    @MealPriceTotal
-                </h3>
+                
             </div>
 
-            <div class="mgl-5">
+            <div class="mgl-2">
                 <i class="mdi mdi-delete cl-dark fsz-18 pointer" @onclick="HandleRemove"></i>
             </div>
         </div>
+
+        <div class="flex flex-center wvl-5">
+            <div class="flex flex-start flex-aligncenter bd corner-3 pd mgb-5 shadow-border-3">
+                <img src="@Img" alt="@AltTitle" class="wx-05 hx-05 corner-3" />
+
+                <div class="flex flex-spacebetween wf">
+                    <div class="flex-1 pdl-10">
+                        <div class="mgr-10">
+                            <h5 class="mg-0 pdb-2 fsz-13">@MealTitle</h5>
+                            <h3 class="mg-0 pdb-2 fsz-13 cl-secondary">@MealPrice</h3>
+                            <div class="">
+                                <div class="flex text-center corner-2 bd wx-1 mgr-5">
+                                    <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0"
+                                            @onclick="HandleDecre">
+                                        -</button>
+                                        <p class="wf fsz-15 fw-bold mg-0 pd">@Num</p>
+                                        <button class="wf bg-secondary-02 fsz-15 fw-bold bd-none corner-2 pd-0"
+                                                @onclick="HandleIncre">
+                                            +</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="mg-0 cl-secondary fsz-20">
+                            @MealPriceTotal
+                        </h3>
+                    </div>
+
+                    <div class="mgl-5">
+                        <i class="mdi mdi-delete cl-dark fsz-18 pointer" @onclick="HandleRemove"></i>
+                    </div>
+                </div>
 
 @code {
 
